@@ -103,15 +103,25 @@ for catching extraction breaking.
 
 ## Regenerating the demo
 
+Run this **by hand**, and only when a change is worth showing — it is
+deliberately not part of the build or test flow. Each recording commits a fresh
+~3.5 MB binary, and the GIF stays accurate across most changes, so re-recording
+routinely just grows the history for nothing.
+
 ```sh
-Tools/record-demo.sh
+Tools/record-demo.sh                          # defaults
+SPEEDUP=2.5 FPS=8 WIDTH=280 KEEP_CAPTURE=1 \
+  Tools/record-demo.sh                        # retune without re-recording
 ```
 
 Drives the app through `DemoWalkthrough` while recording the simulator, then
-builds `Docs/demo.gif`. The GIF is kept small by sharing one palette across
-frames so only changes are stored, and by skipping dithering — the seeded
-accent colours in `Tools/build-gif.py` exist because median cut otherwise
-spends the entire palette on dark greys and renders the amber as brown.
+builds `Docs/demo.gif`. `KEEP_CAPTURE=1` keeps the `.mov` so the encoding can be
+adjusted without sitting through another capture.
+
+The GIF is kept small by sharing one palette across frames so only changes are
+stored, and by skipping dithering. The seeded accent colours in
+`Tools/build-gif.py` exist because median cut otherwise spends the entire
+palette on dark greys and renders the amber as brown.
 
 The app icon is generated too, by `Tools/make-icon.swift`.
 
