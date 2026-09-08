@@ -44,8 +44,8 @@ final class PlaybackFlowUITests: XCTestCase {
         let row = app.buttons["historyRow_\(videoID)"]
         XCTAssertTrue(row.waitForExistence(timeout: 10), "Played video should be in history")
 
-        app.segmentedControls["historyFilter"].buttons["Local"].tap()
-        XCTAssertTrue(row.waitForExistence(timeout: 5), "Downloaded video should pass the Local filter")
+        app.segmentedControls["historyFilter"].buttons["Taped"].tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "Taped video should pass the Taped filter")
 
         // 4. Selecting it plays the local file rather than streaming.
         row.tap()
@@ -68,11 +68,55 @@ final class PlaybackFlowUITests: XCTestCase {
         )
     }
 
-    private func loadVideo() {
+    /// Plays a 19-second tape with a long one queued behind it, then waits out
+    /// the tape plus the 2-second gap and checks the deck rolled on by itself.
+    func testContinuousPlayAdvancesToTheNextTape() {
+        // Seed the library so there is something to advance *to*.
+        load("dQw4w9WgXcQ")
+        XCTAssertTrue(
+            app.descendants(matching: .any)["downloadButton"].waitForExistence(timeout: 90),
+            "The queued tape should resolve"
+        )
+
+        // Now play the short one; the queue leads with it, followed by the long one.
+        clearInput()
+        load(videoID)
+
+        // Prove the short tape is actually the one playing before waiting on the
+        // hand-off, otherwise a failed switch would make the next assertion pass
+        // for the wrong reason.
+        let shortTapeTitle = app.staticTexts.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", "Me at the zoo")
+        ).firstMatch
+        XCTAssertTrue(shortTapeTitle.waitForExistence(timeout: 90), "The short tape should be playing")
+
+        // 19s of tape + a 2s gap + metadata for the next one.
+        let nextTapeTitle = app.staticTexts.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", "Never Gonna Give You Up")
+        ).firstMatch
+
+        XCTAssertTrue(
+            nextTapeTitle.waitForExistence(timeout: 120),
+            "Playback should roll on to the next tape in the library on its own"
+        )
+    }
+
+    private func clearInput() {
+        let field = app.textFields["videoInput"]
+        field.tap()
+        let existing = (field.value as? String) ?? ""
+        field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: existing.count))
+    }
+
+    private func load(_ id: String) {
         let field = app.textFields["videoInput"]
         XCTAssertTrue(field.waitForExistence(timeout: 10))
         field.tap()
-        field.typeText(videoID)
+        field.typeText(id)
         app.buttons["playButton"].tap()
+    }
+
+    private func loadVideo() {
+        load(videoID)
     }
 }

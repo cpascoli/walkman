@@ -28,7 +28,7 @@ targets:
     info:
       path: YouTubePlayer/Info.plist
       properties:
-        CFBundleDisplayName: MyTube Player
+        CFBundleDisplayName: Walkman
         LSRequiresIPhoneOS: true
         UIUserInterfaceStyle: Dark
         UIBackgroundModes:
@@ -58,6 +58,19 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SUPPORTS_MACCATALYST: YES
 
+  YouTubePlayerTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: YouTubePlayerTests
+    dependencies:
+      - target: YouTubePlayer
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.carlopascoli.mytubeplayer.tests
+        TEST_TARGET_NAME: YouTubePlayer
+        GENERATE_INFOPLIST_FILE: "YES"
+
   YouTubePlayerUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -76,10 +89,12 @@ schemes:
     build:
       targets:
         YouTubePlayer: all
+        YouTubePlayerTests: [test]
         YouTubePlayerUITests: [test]
     run:
       config: Debug
     test:
       config: Debug
       targets:
+        - YouTubePlayerTests
         - YouTubePlayerUITests

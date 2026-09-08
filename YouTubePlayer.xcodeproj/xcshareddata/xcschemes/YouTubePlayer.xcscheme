@@ -29,6 +29,20 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "85725A76432339D7146FE627"
+               BuildableName = "YouTubePlayerTests.xctest"
+               BlueprintName = "YouTubePlayerTests"
+               ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "19FC432727D7E9BD94E268AC"
                BuildableName = "YouTubePlayerUITests.xctest"
                BlueprintName = "YouTubePlayerUITests"
@@ -53,6 +67,17 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "85725A76432339D7146FE627"
+               BuildableName = "YouTubePlayerTests.xctest"
+               BlueprintName = "YouTubePlayerTests"
+               ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
          <TestableReference
             skipped = "NO"
             parallelizable = "NO">

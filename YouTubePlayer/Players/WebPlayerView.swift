@@ -9,6 +9,9 @@ final class PlayerCoordinator: NSObject, ObservableObject {
     /// user drives playback from the embedded controls rather than our buttons.
     @Published private(set) var isPlaying = false
 
+    /// Called when the embedded player reaches the end of the video.
+    var onEnded: (() -> Void)?
+
     fileprivate weak var webView: WKWebView?
     fileprivate var loadedVideoID: String?
 
@@ -33,8 +36,9 @@ extension PlayerCoordinator: WKScriptMessageHandler {
 
     func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
         guard message.name == "playerState", let state = message.body as? Int else { return }
-        // YT.PlayerState.playing == 1
+        // YT.PlayerState: 1 == playing, 0 == ended
         isPlaying = (state == 1)
+        if state == 0 { onEnded?() }
     }
 }
 

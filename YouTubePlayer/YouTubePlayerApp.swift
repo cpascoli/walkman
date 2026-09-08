@@ -5,11 +5,13 @@ struct YouTubePlayerApp: App {
 
     @StateObject private var history: PlaybackHistoryStore
     @StateObject private var downloads: DownloadManager
+    @StateObject private var queue: PlayQueue
     @StateObject private var nativeModel: NativePlayerModel
 
     init() {
         let history = PlaybackHistoryStore()
         let downloads = DownloadManager()
+        let queue = PlayQueue()
 
         // Lets the UI test suite start from a known-empty state.
         if ProcessInfo.processInfo.arguments.contains("-resetState") {
@@ -18,7 +20,8 @@ struct YouTubePlayerApp: App {
         }
         _history = StateObject(wrappedValue: history)
         _downloads = StateObject(wrappedValue: downloads)
-        _nativeModel = StateObject(wrappedValue: NativePlayerModel(history: history, downloads: downloads))
+        _queue = StateObject(wrappedValue: queue)
+        _nativeModel = StateObject(wrappedValue: NativePlayerModel(history: history, downloads: downloads, queue: queue))
 
         // Thumbnails are re-requested constantly by the history list; give them
         // a real on-disk cache so the list renders instantly and works offline.
@@ -27,7 +30,7 @@ struct YouTubePlayerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(history: history, nativeModel: nativeModel, downloads: downloads)
+            ContentView(history: history, nativeModel: nativeModel, downloads: downloads, queue: queue)
         }
     }
 }

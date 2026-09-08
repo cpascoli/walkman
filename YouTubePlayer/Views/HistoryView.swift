@@ -13,7 +13,7 @@ struct HistoryView: View {
         var title: String {
             switch self {
             case .all: return "All"
-            case .local: return "Local"
+            case .local: return "Taped"
             }
         }
     }
@@ -51,23 +51,23 @@ struct HistoryView: View {
                     content
                 }
             }
-            .navigationTitle("History")
+            .navigationTitle("Tape Library")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Theme.background, for: .navigationBar)
+            .toolbarBackground(Theme.surface, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .searchable(text: $query, prompt: "Search by title or video ID")
+            .searchable(text: $query, prompt: "Search tapes")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Menu {
-                        Button("Clear History", systemImage: "trash", role: .destructive) {
+                        Button("Clear Library", systemImage: "trash", role: .destructive) {
                             store.clear()
                         }
                         .disabled(store.entries.isEmpty)
 
-                        Button("Delete All Downloads", systemImage: "internaldrive", role: .destructive) {
+                        Button("Erase All Tapes", systemImage: "internaldrive", role: .destructive) {
                             downloads.deleteAll()
                         }
                         .disabled(downloads.downloadedIDs.isEmpty)
@@ -85,15 +85,15 @@ struct HistoryView: View {
     private var content: some View {
         if store.entries.isEmpty {
             unavailable(
-                "No history yet",
-                icon: "clock.arrow.circlepath",
-                message: "Videos you play will appear here."
+                "Library empty",
+                icon: "tray",
+                message: "Tapes you play will be filed here."
             )
         } else if visible.isEmpty, filter == .local {
             unavailable(
-                "No downloads",
-                icon: "internaldrive",
-                message: "Downloaded videos play from the device, with no network needed."
+                "No tapes recorded",
+                icon: "recordingtape",
+                message: "Taped videos play straight off the device, with no network needed."
             )
         } else if visible.isEmpty {
             unavailable(
@@ -119,8 +119,7 @@ struct HistoryView: View {
         List {
             if filter == .local, !downloads.downloadedIDs.isEmpty {
                 Text("\(ByteCountFormatter.string(fromByteCount: downloads.totalBytesOnDisk, countStyle: .file)) on device")
-                    .font(.caption)
-                    .foregroundStyle(Theme.secondaryText)
+                    .legendStyle()
                     .listRowBackground(Theme.background)
                     .listRowSeparator(.hidden)
             }
@@ -135,7 +134,8 @@ struct HistoryView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("historyRow_\(entry.id)")
                 .listRowBackground(Theme.background)
-                .listRowSeparatorTint(Theme.border)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                 .swipeActions(edge: .trailing) {
                     Button("Remove", systemImage: "trash", role: .destructive) {
                         downloads.delete(videoID: entry.id)
@@ -143,7 +143,7 @@ struct HistoryView: View {
                     }
 
                     if downloads.isDownloaded(entry.id) {
-                        Button("Delete Download", systemImage: "internaldrive") {
+                        Button("Erase Tape", systemImage: "internaldrive") {
                             downloads.delete(videoID: entry.id)
                         }
                         .tint(.orange)
@@ -163,33 +163,65 @@ private struct HistoryRow: View {
     let isDownloaded: Bool
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 0) {
             thumbnail
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(entry.title)
-                    .font(.subheadline.weight(.medium))
-                    .lineLimit(2)
-                    .foregroundStyle(Theme.primaryText)
-
-                HStack(spacing: 6) {
-                    if isDownloaded {
-                        Image(systemName: "arrow.down.circle.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.green)
-                            .accessibilityLabel("Downloaded")
-                    }
-
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(Theme.secondaryText)
-                }
-            }
-
-            Spacer(minLength: 0)
+            spine
+            cassetteLabel
         }
-        .padding(.vertical, 4)
+        .frame(height: 74)
+        .background(Theme.recess)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .strokeBorder(Color.black.opacity(0.7), lineWidth: 1)
+        )
+        .padding(.vertical, 5)
         .contentShape(Rectangle())
+    }
+
+    /// The narrow coloured band down the side of a cassette insert.
+    private var spine: some View {
+        Rectangle()
+            .fill(isDownloaded ? Theme.accent : Color(white: 0.28))
+            .frame(width: 4)
+    }
+
+    /// The paper label: title on the ruled line, details beneath.
+    private var cassetteLabel: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(entry.title)
+                .font(.system(size: 13, weight: .semibold))
+                .lineLimit(1)
+                .foregroundStyle(Color(white: 0.12))
+
+            Rectangle()
+                .fill(Color(white: 0.12).opacity(0.25))
+                .frame(height: 0.5)
+
+            HStack(spacing: 5) {
+                if isDownloaded {
+                    Image(systemName: "recordingtape")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Color(red: 0.62, green: 0.24, blue: 0.04))
+                        .accessibilityLabel("Taped")
+                }
+
+                Text(subtitle)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(Color(white: 0.12).opacity(0.65))
+                    .lineLimit(1)
+            }
+        }
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxHeight: .infinity)
+        .background(
+            LinearGradient(
+                colors: [Theme.label, Theme.label.opacity(0.86)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
 
     private var subtitle: String {
@@ -203,26 +235,16 @@ private struct HistoryRow: View {
             case .success(let image):
                 image.resizable().scaledToFill()
             case .failure:
-                Image(systemName: "play.rectangle")
+                Image(systemName: "photo")
                     .foregroundStyle(Theme.secondaryText)
             case .empty:
-                ProgressView().controlSize(.small)
+                ProgressView().controlSize(.small).tint(Theme.secondaryText)
             @unknown default:
                 Color.clear
             }
         }
-        .frame(width: 106, height: 60)
-        .background(Theme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(alignment: .bottomTrailing) {
-            if isDownloaded {
-                Image(systemName: "internaldrive.fill")
-                    .font(.system(size: 9))
-                    .foregroundStyle(.white)
-                    .padding(4)
-                    .background(.black.opacity(0.65), in: Circle())
-                    .padding(4)
-            }
-        }
+        .frame(width: 96, height: 74)
+        .clipped()
+        .background(Color(white: 0.1))
     }
 }

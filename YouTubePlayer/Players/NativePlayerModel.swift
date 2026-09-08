@@ -26,6 +26,14 @@ final class NativePlayerModel: ObservableObject {
     @Published private(set) var qualities: [Quality] = []
     @Published private(set) var selectedQualityID: Int?
     @Published private(set) var isPlaying = false
+    /// Current playback position, republished for the tape counter.
+    @Published private(set) var elapsed: TimeInterval = 0
+
+    /// True during the silent gap between one tape and the next.
+    @Published private(set) var isChangingTape = false
+
+    /// Keep playing through the library when a video ends, like a tape side.
+    @Published var isContinuousPlayEnabled = true
     @Published private(set) var isLive = false
     /// True when the current video is coming off disk rather than the network.
     @Published private(set) var isPlayingLocalFile = false
@@ -38,18 +46,25 @@ final class NativePlayerModel: ObservableObject {
 
     private let history: PlaybackHistoryStore
     private let downloads: DownloadManager
+    private let queue: PlayQueue
     private let nowPlaying = NowPlayingController()
 
     private var loadTask: Task<Void, Never>?
     private var itemTask: Task<Void, Never>?
+    private var advanceTask: Task<Void, Never>?
+    private var endOfItemObserver: NSObjectProtocol?
     private var itemStatusObserver: AnyCancellable?
     private var timeObserver: Any?
     private var notificationObservers: [NSObjectProtocol] = []
     private var shouldResumeAfterInterruption = false
 
-    init(history: PlaybackHistoryStore, downloads: DownloadManager) {
+    /// The silent leader between tracks, so one video doesn't slam into the next.
+    static let gapBetweenTapes: Duration = .seconds(2)
+
+    init(history: PlaybackHistoryStore, downloads: DownloadManager, queue: PlayQueue) {
         self.history = history
         self.downloads = downloads
+        self.queue = queue
 
         player.publisher(for: \.timeControlStatus)
             .map { $0 == .playing }
@@ -66,12 +81,23 @@ final class NativePlayerModel: ObservableObject {
         if let timeObserver {
             player.removeTimeObserver(timeObserver)
         }
+        if let endOfItemObserver {
+            NotificationCenter.default.removeObserver(endOfItemObserver)
+        }
         notificationObservers.forEach(NotificationCenter.default.removeObserver)
     }
 
     // MARK: - Loading
 
+    /// User-initiated play. Establishes the running order from the library.
     func load(videoID: String) {
+        queue.rebuild(from: history.entries, startingAt: videoID)
+        start(videoID: videoID)
+    }
+
+    private func start(videoID: String) {
+        cancelPendingAdvance()
+
         // A downloaded copy plays instantly and works offline, so it wins over streaming.
         let localURL = downloads.localURL(for: videoID)
 
@@ -120,6 +146,42 @@ final class NativePlayerModel: ObservableObject {
     var downloadableSource: StreamResolver.Source? {
         guard !isPlayingLocalFile, let id = selectedQualityID else { return nil }
         return qualities.first(where: { $0.id == id })?.source
+    }
+
+    // MARK: - Continuous play
+
+    /// Called when a video plays to its end.
+    private func handleEndOfTape() {
+        guard isContinuousPlayEnabled, queue.count > 0 else { return }
+
+        isChangingTape = true
+        advanceTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.gapBetweenTapes)
+            guard let self, !Task.isCancelled else { return }
+
+            self.isChangingTape = false
+            guard let next = self.queue.advance() else { return }
+
+            // A library of one means rewind and play it again.
+            if next == self.videoID {
+                self.rewindAndPlay()
+                return
+            }
+            self.start(videoID: next)
+        }
+    }
+
+    /// Sync helper: in an async context `seek(to:)` would resolve to its
+    /// awaitable overload, which isn't what's wanted here.
+    private func rewindAndPlay() {
+        player.seek(to: .zero)
+        player.play()
+    }
+
+    private func cancelPendingAdvance() {
+        advanceTask?.cancel()
+        advanceTask = nil
+        isChangingTape = false
     }
 
     /// Re-resolves the current video — stream URLs are IP-bound and expire after a few hours.
@@ -207,6 +269,7 @@ final class NativePlayerModel: ObservableObject {
 
     private func install(_ item: AVPlayerItem, resumeAt: CMTime, shouldResume: Bool) {
         observeFailure(of: item)
+        observeEnd(of: item)
         player.replaceCurrentItem(with: item)
 
         if resumeAt.isValid, resumeAt.seconds > 0 {
@@ -214,6 +277,17 @@ final class NativePlayerModel: ObservableObject {
         }
         if shouldResume { player.play() }
         updateNowPlaying()
+    }
+
+    private func observeEnd(of item: AVPlayerItem) {
+        if let endOfItemObserver {
+            NotificationCenter.default.removeObserver(endOfItemObserver)
+        }
+        endOfItemObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.handleEndOfTape() }
+        }
     }
 
     /// Surfaces decode/network failures on the item, which arrive asynchronously
@@ -241,6 +315,7 @@ final class NativePlayerModel: ObservableObject {
     }
 
     func stop() {
+        cancelPendingAdvance()
         player.pause()
         player.seek(to: .zero)
         updateNowPlaying()
@@ -255,12 +330,14 @@ final class NativePlayerModel: ObservableObject {
     func resetPlaybackState() {
         loadTask?.cancel()
         loadTask = nil
+        cancelPendingAdvance()
         itemTask?.cancel()
         itemTask = nil
         itemStatusObserver = nil
         player.replaceCurrentItem(with: nil)
         state = .idle
         videoID = nil
+        elapsed = 0
         title = nil
         thumbnailURL = nil
         qualities = []
@@ -293,6 +370,8 @@ final class NativePlayerModel: ObservableObject {
 
     private func updateNowPlaying() {
         guard videoID != nil else { return }
+        let position = player.currentTime().seconds
+        elapsed = position.isFinite ? position : 0
         let duration = player.currentItem?.duration.seconds
         nowPlaying.update(
             title: title ?? videoID ?? "YouTube video",

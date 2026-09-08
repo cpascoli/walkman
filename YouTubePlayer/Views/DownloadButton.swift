@@ -14,7 +14,7 @@ struct DownloadButton: View {
                 guard let source else { return }
                 downloads.download(videoID: videoID, source: source)
             } label: {
-                Label("Download", systemImage: "arrow.down.circle")
+                Label("Tape it", systemImage: "recordingtape")
             }
             .buttonStyle(.bordered)
             .tint(Theme.primaryText)
@@ -24,7 +24,7 @@ struct DownloadButton: View {
         case .preparing:
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)
-                Text("Preparing…")
+                Text("Cueing…")
             }
             .font(.caption)
             .foregroundStyle(Theme.secondaryText)
@@ -33,7 +33,7 @@ struct DownloadButton: View {
             HStack(spacing: 10) {
                 ProgressView(value: progress)
                     .progressViewStyle(.linear)
-                    .tint(Theme.accent)
+                    .tint(Theme.led)
                     .frame(width: 90)
 
                 Text(progress.formatted(.percent.precision(.fractionLength(0))))
@@ -49,13 +49,13 @@ struct DownloadButton: View {
 
         case .downloaded:
             Menu {
-                Button("Delete Download", systemImage: "trash", role: .destructive) {
+                Button("Erase Tape", systemImage: "trash", role: .destructive) {
                     downloads.delete(videoID: videoID)
                 }
             } label: {
                 Label(downloadedLabel, systemImage: "arrow.down.circle.fill")
                     .font(.caption)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(Theme.accent)
             }
             .accessibilityIdentifier("downloadedBadge")
 
@@ -75,6 +75,6 @@ struct DownloadButton: View {
 
     private var downloadedLabel: String {
         guard let bytes = downloads.fileSize(for: videoID) else { return "Downloaded" }
-        return "Saved · \(ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file))"
+        return "Taped · \(ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file))"
     }
 }

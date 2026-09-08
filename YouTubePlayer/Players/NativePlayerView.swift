@@ -14,9 +14,9 @@ struct NativePlayerView: View {
 
                 switch model.state {
                 case .loading:
-                    ProgressView("Resolving stream…")
-                        .tint(.white)
-                        .foregroundStyle(.white)
+                    ProgressView("Cueing tape…")
+                        .tint(Theme.accent)
+                        .foregroundStyle(Theme.label)
                         .padding()
                         .background(.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 10))
                 case .failed(let message):
@@ -26,7 +26,7 @@ struct NativePlayerView: View {
                 }
             }
             .aspectRatio(16.0 / 9.0, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 4))
 
             if model.state == .ready {
                 details
@@ -55,20 +55,20 @@ struct NativePlayerView: View {
         VStack(alignment: .leading, spacing: 8) {
             if let title = model.title {
                 Text(title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.primaryText)
                     .lineLimit(2)
             }
 
             HStack(spacing: 12) {
                 if model.isLive {
-                    Label("Live stream", systemImage: "dot.radiowaves.left.and.right")
-                        .font(.caption)
-                        .foregroundStyle(Theme.accent)
+                    Label("Live", systemImage: "dot.radiowaves.left.and.right")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Theme.led)
                 } else if model.isPlayingLocalFile {
-                    Label("Playing downloaded file", systemImage: "internaldrive")
-                        .font(.caption)
-                        .foregroundStyle(.green)
+                    Label("Local tape", systemImage: "internaldrive")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Theme.accent)
                         .accessibilityIdentifier("localPlaybackBadge")
                 } else if model.qualities.count > 1 {
                     Picker("Quality", selection: qualitySelection) {
