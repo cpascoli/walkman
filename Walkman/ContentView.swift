@@ -12,7 +12,12 @@ struct ContentView: View {
 
     @State private var videoInput: String = ""
     @State private var embeddedVideoID: String?
+    /// The player the user picked in Settings.
     @State private var engine: PlaybackEngine = .native
+    /// The player actually driving playback. A recording with a local copy is
+    /// always handed to the native player, whatever the setting says, so it
+    /// keeps going in the background.
+    @State private var activeEngine: PlaybackEngine = .native
     @State private var errorMessage: String?
     @State private var isShowingLibrary = false
     @State private var isShowingSettings = false
@@ -22,11 +27,11 @@ struct ContentView: View {
     @FocusState private var isInputFocused: Bool
 
     private var currentVideoID: String? {
-        engine == .embedded ? embeddedVideoID : nativeModel.videoID
+        activeEngine == .embedded ? embeddedVideoID : nativeModel.videoID
     }
 
     private var isPlaying: Bool {
-        engine == .embedded ? webCoordinator.isPlaying : nativeModel.isPlaying
+        activeEngine == .embedded ? webCoordinator.isPlaying : nativeModel.isPlaying
     }
 
     var body: some View {
@@ -57,21 +62,18 @@ struct ContentView: View {
         }
         .onAppear {
             webCoordinator.onEnded = advanceEmbedded
+            nativeModel.onHandOff = { playQueued($0) }
+            nativeModel.playsOnlyLocalCopies = engine == .embedded
         }
-        .onChange(of: engine) { _, _ in
+        .onChange(of: engine) { _, newEngine in
             embeddedAdvanceTask?.cancel()
+            nativeModel.playsOnlyLocalCopies = newEngine == .embedded
             // Only one engine should ever be producing audio.
             webCoordinator.stop()
             nativeModel.pause()
 
             if let id = embeddedVideoID ?? nativeModel.videoID {
-                play(
-                    PlaybackRequest(
-                        videoID: id,
-                        running: queue.ids.isEmpty ? [id] : queue.ids,
-                        sourceName: queue.sourceName
-                    )
-                )
+                playQueued(id)
             }
         }
     }
@@ -177,7 +179,7 @@ struct ContentView: View {
     private var tapeWindow: some View {
         VStack(spacing: 0) {
             Group {
-                switch engine {
+                switch activeEngine {
                 case .embedded:
                     if let embeddedVideoID {
                         YouTubePlayerView(videoId: embeddedVideoID, coordinator: webCoordinator)
@@ -324,13 +326,41 @@ struct ContentView: View {
 
     private func play(_ request: PlaybackRequest) {
         errorMessage = nil
-        switch engine {
+
+        // A local copy always goes to the native player: the web view can't
+        // reach the file, and it can't keep playing once the app is backgrounded.
+        let resolved = resolvedEngine(for: request.videoID)
+        activeEngine = resolved
+
+        switch resolved {
         case .embedded:
+            webCoordinator.stop()
             queue.rebuild(from: request)
             playEmbedded(request.videoID)
         case .native:
+            if engine == .embedded {
+                // Handing off from the web view — silence it first.
+                webCoordinator.stop()
+                embeddedVideoID = nil
+            }
             nativeModel.load(request)
         }
+    }
+
+    private func resolvedEngine(for videoID: String) -> PlaybackEngine {
+        downloads.isDownloaded(videoID) ? .native : engine
+    }
+
+    /// Plays whatever the queue has landed on, re-resolving the engine so a
+    /// downloaded track mid-tape still gets the native player.
+    private func playQueued(_ videoID: String) {
+        play(
+            PlaybackRequest(
+                videoID: videoID,
+                running: queue.ids.isEmpty ? [videoID] : queue.ids,
+                sourceName: queue.sourceName
+            )
+        )
     }
 
     private func playEmbedded(_ videoID: String) {
@@ -340,20 +370,20 @@ struct ContentView: View {
     }
 
     private func skipForward() {
-        switch engine {
+        switch activeEngine {
         case .embedded:
             embeddedAdvanceTask?.cancel()
-            if let next = queue.advance() { playEmbedded(next) }
+            if let next = queue.advance() { playQueued(next) }
         case .native:
             nativeModel.skipForward()
         }
     }
 
     private func skipBackward() {
-        switch engine {
+        switch activeEngine {
         case .embedded:
             embeddedAdvanceTask?.cancel()
-            if let previous = queue.previous() { playEmbedded(previous) }
+            if let previous = queue.previous() { playQueued(previous) }
         case .native:
             nativeModel.skipBackward()
         }
@@ -361,7 +391,7 @@ struct ContentView: View {
 
     /// The embedded engine has no queue of its own, so it borrows the shared one.
     private func advanceEmbedded() {
-        guard engine == .embedded, nativeModel.isContinuousPlayEnabled, queue.count > 0 else { return }
+        guard activeEngine == .embedded, nativeModel.isContinuousPlayEnabled, queue.count > 0 else { return }
 
         embeddedAdvanceTask?.cancel()
         embeddedAdvanceTask = Task {
@@ -371,13 +401,13 @@ struct ContentView: View {
             if next == embeddedVideoID {
                 webCoordinator.play()
             } else {
-                playEmbedded(next)
+                playQueued(next)
             }
         }
     }
 
     private func togglePlayback() {
-        switch engine {
+        switch activeEngine {
         case .embedded:
             isPlaying ? webCoordinator.pause() : webCoordinator.play()
         case .native:
@@ -387,7 +417,7 @@ struct ContentView: View {
 
     private func stop() {
         embeddedAdvanceTask?.cancel()
-        switch engine {
+        switch activeEngine {
         case .embedded: webCoordinator.stop()
         case .native: nativeModel.stop()
         }

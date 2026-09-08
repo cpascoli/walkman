@@ -13,7 +13,7 @@ final class PlaybackHistoryStore: ObservableObject {
 
     private let fileURL: URL
     private var pendingLookups: Set<String> = []
-    private let log = Logger(subsystem: "com.carlopascoli.mytubeplayer", category: "History")
+    private let log = Logger(subsystem: "com.carlopascoli.walkman", category: "History")
 
     init(fileURL: URL? = nil) {
         self.fileURL = fileURL ?? Self.defaultFileURL()
@@ -120,7 +120,7 @@ final class PlaybackHistoryStore: ObservableObject {
                 let data = try JSONEncoder().encode(snapshot)
                 try data.write(to: url, options: .atomic)
             } catch {
-                Logger(subsystem: "com.carlopascoli.mytubeplayer", category: "History")
+                Logger(subsystem: "com.carlopascoli.walkman", category: "History")
                     .error("Failed to save history: \(error.localizedDescription, privacy: .public)")
             }
         }

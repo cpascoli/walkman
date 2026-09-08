@@ -1,0 +1,677 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		189160E71DF8070374B6831F /* NativePlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F8F5E62F23342C51FA1531F /* NativePlayerModel.swift */; };
+		1AE6950663BF2FAA782DDC0F /* VideoSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1422CB92572326F47980969 /* VideoSurface.swift */; };
+		1D37EF8735F9FD40BF21FBA7 /* YouTubeVideoIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC9ACA863DDD38CD35A1B37 /* YouTubeVideoIDTests.swift */; };
+		1E3DC2F02A57D7472D3DD9FD /* DownloadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ADBAF2C58AEC40DCF33C8E1 /* DownloadButton.swift */; };
+		20078D4F6FDFAA4E73DAD292 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B5E7CDCCE0D5D472EB10920 /* Assets.xcassets */; };
+		3972A1C42CCC13591B136538 /* HistoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12653A6281347E224E9FF152 /* HistoryEntry.swift */; };
+		45DB10CF9ECEED3875168EB9 /* PlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF07EDC130CC77EF5845DB05 /* PlaybackEngine.swift */; };
+		5DFF296794D1C677D10B3BFB /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640B74C1BD2C92631993C9FD /* DownloadManager.swift */; };
+		658995AF5FFC2E77446441D5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A64A391447377A2B253A12 /* Theme.swift */; };
+		7F6ECD2F638A38FF4F61E853 /* CassetteRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E9FB1158BA656F8C581B92F /* CassetteRow.swift */; };
+		801D2C08CC1B4F9028301779 /* PlaybackHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1DF5D3370612A24AB412467 /* PlaybackHistoryStore.swift */; };
+		80C45ABE9963FCEF324280AF /* PlayQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F729BD3E7AE0B19632C1CD6 /* PlayQueue.swift */; };
+		8236D4F4ED681AB2389316EF /* YouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 02E7CC95ECD935658BAC0C53 /* YouTubeKit */; };
+		8A8E6C08C997E058F5A9DC9D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E982ED2E18B7C2DB7C834147 /* SettingsView.swift */; };
+		8C3663328491BBFC080DA7BB /* WebPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C0899C7C2A21AA4FBD4E73C /* WebPlayerView.swift */; };
+		9929B27CC997709BB48131B7 /* PlaybackFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7710DCC79A67CA92C16F385F /* PlaybackFlowUITests.swift */; };
+		A54E862CD29A2CD50DF552EC /* StreamResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE290843B53E1A2301FDE404 /* StreamResolver.swift */; };
+		A6CE6355B50BF5588A5B9891 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2470493D55072AA70378CD12 /* ContentView.swift */; };
+		B31A66DE8D58B68E2E162125 /* RetroControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C39616D3DF54C57774ECDB /* RetroControls.swift */; };
+		B83489B66102172BC04283AD /* PlayQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 197380F370937A93B85B9F5A /* PlayQueueTests.swift */; };
+		BD1CDF891B149DB0FAD97D99 /* NowPlayingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E456EEFF6FEB961B74D399AF /* NowPlayingController.swift */; };
+		C7B95DEAF5F99224628A6DCB /* YouTubeVideoID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225FECFD8DA3C59887943E48 /* YouTubeVideoID.swift */; };
+		CA2530B60766C3F97FB34A3C /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D44375C5A44C6CB0468F960 /* LibraryView.swift */; };
+		CDACF027E94B44FDEE7154EA /* WalkmanApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1A8BFC3481AE9A4497A934 /* WalkmanApp.swift */; };
+		D21790E0CB5914AD5AFEEC6C /* NativePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29D1314E2D8AC679C307FA2 /* NativePlayerView.swift */; };
+		E96B0A768DE97FD353B8C8C2 /* Tape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4531E2AFE1726245CB465A /* Tape.swift */; };
+		EB812B8C2B55620ABC78BEE0 /* TapeLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44538F22E00429D9A04569A3 /* TapeLibraryTests.swift */; };
+		F6A7CA3328BF6E342106D28E /* TapeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2725D000FCCAB7AE60F7CC8 /* TapeLibrary.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9A4BEF5C09282E2692B1C7CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF90528DFA038EB2A4B81A4B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F152BD81437CE1FF5F921471;
+			remoteInfo = Walkman;
+		};
+		CA5826CDC32F6F6405DB334F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF90528DFA038EB2A4B81A4B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F152BD81437CE1FF5F921471;
+			remoteInfo = Walkman;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		12653A6281347E224E9FF152 /* HistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEntry.swift; sourceTree = "<group>"; };
+		197380F370937A93B85B9F5A /* PlayQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayQueueTests.swift; sourceTree = "<group>"; };
+		225FECFD8DA3C59887943E48 /* YouTubeVideoID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeVideoID.swift; sourceTree = "<group>"; };
+		2470493D55072AA70378CD12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		274B8A8992E77718414245BB /* WalkmanTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WalkmanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2ADBAF2C58AEC40DCF33C8E1 /* DownloadButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadButton.swift; sourceTree = "<group>"; };
+		44538F22E00429D9A04569A3 /* TapeLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapeLibraryTests.swift; sourceTree = "<group>"; };
+		4B5E7CDCCE0D5D472EB10920 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5C0899C7C2A21AA4FBD4E73C /* WebPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPlayerView.swift; sourceTree = "<group>"; };
+		5D44375C5A44C6CB0468F960 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		640B74C1BD2C92631993C9FD /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		6D4531E2AFE1726245CB465A /* Tape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tape.swift; sourceTree = "<group>"; };
+		7710DCC79A67CA92C16F385F /* PlaybackFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackFlowUITests.swift; sourceTree = "<group>"; };
+		7E9FB1158BA656F8C581B92F /* CassetteRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CassetteRow.swift; sourceTree = "<group>"; };
+		7F8F5E62F23342C51FA1531F /* NativePlayerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePlayerModel.swift; sourceTree = "<group>"; };
+		84936595F1E49B1523AB33B6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8F729BD3E7AE0B19632C1CD6 /* PlayQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayQueue.swift; sourceTree = "<group>"; };
+		9ED98F4E22A1900BA60716FF /* Walkman.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Walkman.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A29D1314E2D8AC679C307FA2 /* NativePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePlayerView.swift; sourceTree = "<group>"; };
+		B2725D000FCCAB7AE60F7CC8 /* TapeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapeLibrary.swift; sourceTree = "<group>"; };
+		BF07EDC130CC77EF5845DB05 /* PlaybackEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackEngine.swift; sourceTree = "<group>"; };
+		C33A3DEF2942BD38B15551C4 /* WalkmanUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WalkmanUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9C39616D3DF54C57774ECDB /* RetroControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetroControls.swift; sourceTree = "<group>"; };
+		CE290843B53E1A2301FDE404 /* StreamResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamResolver.swift; sourceTree = "<group>"; };
+		DC1A8BFC3481AE9A4497A934 /* WalkmanApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkmanApp.swift; sourceTree = "<group>"; };
+		E1422CB92572326F47980969 /* VideoSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSurface.swift; sourceTree = "<group>"; };
+		E456EEFF6FEB961B74D399AF /* NowPlayingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingController.swift; sourceTree = "<group>"; };
+		E5A64A391447377A2B253A12 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		E982ED2E18B7C2DB7C834147 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F1DF5D3370612A24AB412467 /* PlaybackHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackHistoryStore.swift; sourceTree = "<group>"; };
+		FEC9ACA863DDD38CD35A1B37 /* YouTubeVideoIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeVideoIDTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		451A126E93349520465CFD88 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8236D4F4ED681AB2389316EF /* YouTubeKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		433BE386C0BBB3C8687828E6 = {
+			isa = PBXGroup;
+			children = (
+				7E45797B7943ABB9310706A2 /* Walkman */,
+				C402DE57D9A93FF453702CDA /* WalkmanTests */,
+				9D6BDDC554511C95AE5FE65A /* WalkmanUITests */,
+				5B6B14B68D4E8F9814F58D2E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5B6B14B68D4E8F9814F58D2E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9ED98F4E22A1900BA60716FF /* Walkman.app */,
+				274B8A8992E77718414245BB /* WalkmanTests.xctest */,
+				C33A3DEF2942BD38B15551C4 /* WalkmanUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7C784D7E40705C3138E94ED8 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				12653A6281347E224E9FF152 /* HistoryEntry.swift */,
+				BF07EDC130CC77EF5845DB05 /* PlaybackEngine.swift */,
+				F1DF5D3370612A24AB412467 /* PlaybackHistoryStore.swift */,
+				8F729BD3E7AE0B19632C1CD6 /* PlayQueue.swift */,
+				6D4531E2AFE1726245CB465A /* Tape.swift */,
+				B2725D000FCCAB7AE60F7CC8 /* TapeLibrary.swift */,
+				225FECFD8DA3C59887943E48 /* YouTubeVideoID.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		7E45797B7943ABB9310706A2 /* Walkman */ = {
+			isa = PBXGroup;
+			children = (
+				4B5E7CDCCE0D5D472EB10920 /* Assets.xcassets */,
+				2470493D55072AA70378CD12 /* ContentView.swift */,
+				84936595F1E49B1523AB33B6 /* Info.plist */,
+				DC1A8BFC3481AE9A4497A934 /* WalkmanApp.swift */,
+				DD17A0C5EF5058A59A824397 /* Downloads */,
+				7C784D7E40705C3138E94ED8 /* Model */,
+				E12D1B851F52D3226974BDB9 /* Players */,
+				B42C346E37A770D2CD1DE90D /* Views */,
+			);
+			path = Walkman;
+			sourceTree = "<group>";
+		};
+		9D6BDDC554511C95AE5FE65A /* WalkmanUITests */ = {
+			isa = PBXGroup;
+			children = (
+				7710DCC79A67CA92C16F385F /* PlaybackFlowUITests.swift */,
+			);
+			path = WalkmanUITests;
+			sourceTree = "<group>";
+		};
+		B42C346E37A770D2CD1DE90D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7E9FB1158BA656F8C581B92F /* CassetteRow.swift */,
+				2ADBAF2C58AEC40DCF33C8E1 /* DownloadButton.swift */,
+				5D44375C5A44C6CB0468F960 /* LibraryView.swift */,
+				C9C39616D3DF54C57774ECDB /* RetroControls.swift */,
+				E982ED2E18B7C2DB7C834147 /* SettingsView.swift */,
+				E5A64A391447377A2B253A12 /* Theme.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C402DE57D9A93FF453702CDA /* WalkmanTests */ = {
+			isa = PBXGroup;
+			children = (
+				197380F370937A93B85B9F5A /* PlayQueueTests.swift */,
+				44538F22E00429D9A04569A3 /* TapeLibraryTests.swift */,
+				FEC9ACA863DDD38CD35A1B37 /* YouTubeVideoIDTests.swift */,
+			);
+			path = WalkmanTests;
+			sourceTree = "<group>";
+		};
+		DD17A0C5EF5058A59A824397 /* Downloads */ = {
+			isa = PBXGroup;
+			children = (
+				640B74C1BD2C92631993C9FD /* DownloadManager.swift */,
+			);
+			path = Downloads;
+			sourceTree = "<group>";
+		};
+		E12D1B851F52D3226974BDB9 /* Players */ = {
+			isa = PBXGroup;
+			children = (
+				7F8F5E62F23342C51FA1531F /* NativePlayerModel.swift */,
+				A29D1314E2D8AC679C307FA2 /* NativePlayerView.swift */,
+				E456EEFF6FEB961B74D399AF /* NowPlayingController.swift */,
+				CE290843B53E1A2301FDE404 /* StreamResolver.swift */,
+				E1422CB92572326F47980969 /* VideoSurface.swift */,
+				5C0899C7C2A21AA4FBD4E73C /* WebPlayerView.swift */,
+			);
+			path = Players;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D62C5A2B1EB7E5A2B910A7B6 /* WalkmanTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF4717918B982EEB124D19BE /* Build configuration list for PBXNativeTarget "WalkmanTests" */;
+			buildPhases = (
+				A4261A8F135AC8360219EC0D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4A5A4E0806D8111A566FE277 /* PBXTargetDependency */,
+			);
+			name = WalkmanTests;
+			packageProductDependencies = (
+			);
+			productName = WalkmanTests;
+			productReference = 274B8A8992E77718414245BB /* WalkmanTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F152BD81437CE1FF5F921471 /* Walkman */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EF26678F4FE6F4FBD6E878E /* Build configuration list for PBXNativeTarget "Walkman" */;
+			buildPhases = (
+				D33E2CC846D2FB09D028614F /* Sources */,
+				D9305B1BE5D7E7015ED14C32 /* Resources */,
+				451A126E93349520465CFD88 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Walkman;
+			packageProductDependencies = (
+				02E7CC95ECD935658BAC0C53 /* YouTubeKit */,
+			);
+			productName = Walkman;
+			productReference = 9ED98F4E22A1900BA60716FF /* Walkman.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F61DE2F2CD7EF410C65566F6 /* WalkmanUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8D4A9DB10F5C6C2D6818D683 /* Build configuration list for PBXNativeTarget "WalkmanUITests" */;
+			buildPhases = (
+				5D7D477AF535648C91CA2852 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C37F744FDAA3FD0883CB0E3C /* PBXTargetDependency */,
+			);
+			name = WalkmanUITests;
+			packageProductDependencies = (
+			);
+			productName = WalkmanUITests;
+			productReference = C33A3DEF2942BD38B15551C4 /* WalkmanUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EF90528DFA038EB2A4B81A4B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					D62C5A2B1EB7E5A2B910A7B6 = {
+						DevelopmentTeam = 7DZ8FR94Q3;
+						ProvisioningStyle = Automatic;
+						TestTargetID = F152BD81437CE1FF5F921471;
+					};
+					F152BD81437CE1FF5F921471 = {
+						DevelopmentTeam = 7DZ8FR94Q3;
+						ProvisioningStyle = Automatic;
+					};
+					F61DE2F2CD7EF410C65566F6 = {
+						DevelopmentTeam = 7DZ8FR94Q3;
+						ProvisioningStyle = Automatic;
+						TestTargetID = F152BD81437CE1FF5F921471;
+					};
+				};
+			};
+			buildConfigurationList = 25CFCE6B25FA308F434A1739 /* Build configuration list for PBXProject "Walkman" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 433BE386C0BBB3C8687828E6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6DF0EED5CD97EC6A71B91686 /* XCRemoteSwiftPackageReference "YouTubeKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 5B6B14B68D4E8F9814F58D2E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F152BD81437CE1FF5F921471 /* Walkman */,
+				D62C5A2B1EB7E5A2B910A7B6 /* WalkmanTests */,
+				F61DE2F2CD7EF410C65566F6 /* WalkmanUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D9305B1BE5D7E7015ED14C32 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20078D4F6FDFAA4E73DAD292 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5D7D477AF535648C91CA2852 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9929B27CC997709BB48131B7 /* PlaybackFlowUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4261A8F135AC8360219EC0D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B83489B66102172BC04283AD /* PlayQueueTests.swift in Sources */,
+				EB812B8C2B55620ABC78BEE0 /* TapeLibraryTests.swift in Sources */,
+				1D37EF8735F9FD40BF21FBA7 /* YouTubeVideoIDTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D33E2CC846D2FB09D028614F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F6ECD2F638A38FF4F61E853 /* CassetteRow.swift in Sources */,
+				A6CE6355B50BF5588A5B9891 /* ContentView.swift in Sources */,
+				1E3DC2F02A57D7472D3DD9FD /* DownloadButton.swift in Sources */,
+				5DFF296794D1C677D10B3BFB /* DownloadManager.swift in Sources */,
+				3972A1C42CCC13591B136538 /* HistoryEntry.swift in Sources */,
+				CA2530B60766C3F97FB34A3C /* LibraryView.swift in Sources */,
+				189160E71DF8070374B6831F /* NativePlayerModel.swift in Sources */,
+				D21790E0CB5914AD5AFEEC6C /* NativePlayerView.swift in Sources */,
+				BD1CDF891B149DB0FAD97D99 /* NowPlayingController.swift in Sources */,
+				80C45ABE9963FCEF324280AF /* PlayQueue.swift in Sources */,
+				45DB10CF9ECEED3875168EB9 /* PlaybackEngine.swift in Sources */,
+				801D2C08CC1B4F9028301779 /* PlaybackHistoryStore.swift in Sources */,
+				B31A66DE8D58B68E2E162125 /* RetroControls.swift in Sources */,
+				8A8E6C08C997E058F5A9DC9D /* SettingsView.swift in Sources */,
+				A54E862CD29A2CD50DF552EC /* StreamResolver.swift in Sources */,
+				E96B0A768DE97FD353B8C8C2 /* Tape.swift in Sources */,
+				F6A7CA3328BF6E342106D28E /* TapeLibrary.swift in Sources */,
+				658995AF5FFC2E77446441D5 /* Theme.swift in Sources */,
+				1AE6950663BF2FAA782DDC0F /* VideoSurface.swift in Sources */,
+				CDACF027E94B44FDEE7154EA /* WalkmanApp.swift in Sources */,
+				8C3663328491BBFC080DA7BB /* WebPlayerView.swift in Sources */,
+				C7B95DEAF5F99224628A6DCB /* YouTubeVideoID.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4A5A4E0806D8111A566FE277 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F152BD81437CE1FF5F921471 /* Walkman */;
+			targetProxy = CA5826CDC32F6F6405DB334F /* PBXContainerItemProxy */;
+		};
+		C37F744FDAA3FD0883CB0E3C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F152BD81437CE1FF5F921471 /* Walkman */;
+			targetProxy = 9A4BEF5C09282E2692B1C7CC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2439F192CBE550807268C5DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7DZ8FR94Q3;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		43C30AEAA85ADD426B2CBAA0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carlopascoli.walkman.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Walkman.app/Walkman";
+				TEST_TARGET_NAME = Walkman;
+			};
+			name = Debug;
+		};
+		46D72E5FA5FDD392A58681FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Walkman/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carlopascoli.walkman;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		599DF044CA118DCF40A192D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7DZ8FR94Q3;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		A1D5AF1CABC125DA171FF797 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carlopascoli.walkman.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Walkman;
+			};
+			name = Debug;
+		};
+		BDAA257C600623A0EC24EC40 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carlopascoli.walkman.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Walkman.app/Walkman";
+				TEST_TARGET_NAME = Walkman;
+			};
+			name = Release;
+		};
+		DA19080B686B66E69EC0F260 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carlopascoli.walkman.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Walkman;
+			};
+			name = Release;
+		};
+		FCF27487CE48AD8B324867D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Walkman/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.carlopascoli.walkman;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		25CFCE6B25FA308F434A1739 /* Build configuration list for PBXProject "Walkman" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				599DF044CA118DCF40A192D4 /* Debug */,
+				2439F192CBE550807268C5DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6EF26678F4FE6F4FBD6E878E /* Build configuration list for PBXNativeTarget "Walkman" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46D72E5FA5FDD392A58681FF /* Debug */,
+				FCF27487CE48AD8B324867D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8D4A9DB10F5C6C2D6818D683 /* Build configuration list for PBXNativeTarget "WalkmanUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1D5AF1CABC125DA171FF797 /* Debug */,
+				DA19080B686B66E69EC0F260 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DF4717918B982EEB124D19BE /* Build configuration list for PBXNativeTarget "WalkmanTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43C30AEAA85ADD426B2CBAA0 /* Debug */,
+				BDAA257C600623A0EC24EC40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6DF0EED5CD97EC6A71B91686 /* XCRemoteSwiftPackageReference "YouTubeKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alexeichhorn/YouTubeKit";
+			requirement = {
+				kind = exactVersion;
+				version = 0.4.9;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		02E7CC95ECD935658BAC0C53 /* YouTubeKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6DF0EED5CD97EC6A71B91686 /* XCRemoteSwiftPackageReference "YouTubeKit" */;
+			productName = YouTubeKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = EF90528DFA038EB2A4B81A4B /* Project object */;
+}

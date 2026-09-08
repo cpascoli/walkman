@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct YouTubePlayerApp: App {
+struct WalkmanApp: App {
 
     @StateObject private var history: PlaybackHistoryStore
     @StateObject private var downloads: DownloadManager

@@ -8,7 +8,7 @@ final class TapeLibrary: ObservableObject {
     @Published private(set) var tapes: [Tape] = []
 
     private let fileURL: URL
-    private let log = Logger(subsystem: "com.carlopascoli.mytubeplayer", category: "TapeLibrary")
+    private let log = Logger(subsystem: "com.carlopascoli.walkman", category: "TapeLibrary")
 
     init(fileURL: URL? = nil) {
         self.fileURL = fileURL ?? Self.defaultFileURL()
@@ -139,7 +139,7 @@ final class TapeLibrary: ObservableObject {
             do {
                 try JSONEncoder().encode(snapshot).write(to: url, options: .atomic)
             } catch {
-                Logger(subsystem: "com.carlopascoli.mytubeplayer", category: "TapeLibrary")
+                Logger(subsystem: "com.carlopascoli.walkman", category: "TapeLibrary")
                     .error("Failed to save tapes: \(error.localizedDescription, privacy: .public)")
             }
         }

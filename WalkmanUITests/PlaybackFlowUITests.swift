@@ -150,6 +150,34 @@ final class PlaybackFlowUITests: XCTestCase {
         XCTAssertTrue(readout.waitForExistence(timeout: 30), "The deck should show the loaded tape")
     }
 
+    /// A recording with a local copy must play through AVPlayer even when the
+    /// user has picked the embedded player, because the web view can neither
+    /// reach the file nor keep playing in the background.
+    func testDownloadedRecordingUsesTheNativePlayerUnderTheEmbeddedSetting() {
+        loadVideo()
+
+        let downloadButton = app.descendants(matching: .any)["downloadButton"]
+        XCTAssertTrue(downloadButton.waitForExistence(timeout: 90))
+        downloadButton.tap()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["downloadedBadge"].waitForExistence(timeout: 180),
+            "Recording should be stored on device"
+        )
+
+        // Switch the preference to the embedded player.
+        app.buttons["settingsButton"].tap()
+        let embedded = app.segmentedControls.buttons["Embedded"]
+        XCTAssertTrue(embedded.waitForExistence(timeout: 5))
+        embedded.tap()
+        app.buttons["Done"].tap()
+
+        // It should still be the native player on screen, playing the local file.
+        XCTAssertTrue(
+            app.descendants(matching: .any)["localPlaybackBadge"].waitForExistence(timeout: 30),
+            "A downloaded recording should stay on the native player"
+        )
+    }
+
     private func clearInput() {
         let field = app.textFields["videoInput"]
         field.tap()

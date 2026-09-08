@@ -1,5 +1,5 @@
 import XCTest
-@testable import YouTubePlayer
+@testable import Walkman
 
 final class YouTubeVideoIDTests: XCTestCase {
 

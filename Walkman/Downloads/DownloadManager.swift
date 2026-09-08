@@ -50,7 +50,7 @@ final class DownloadManager: ObservableObject {
     private let directory: URL
     private var tasks: [String: Task<Void, Never>] = [:]
     private var sessions: [String: AVAssetExportSession] = [:]
-    private let log = Logger(subsystem: "com.carlopascoli.mytubeplayer", category: "Downloads")
+    private let log = Logger(subsystem: "com.carlopascoli.walkman", category: "Downloads")
 
     init(directory: URL? = nil) {
         let base = directory ?? Self.defaultDirectory()

@@ -1,4 +1,4 @@
-name: YouTubePlayer
+name: Walkman
 options:
   bundleIdPrefix: com.carlopascoli
   deploymentTarget:
@@ -19,14 +19,14 @@ settings:
     DEVELOPMENT_TEAM: 7DZ8FR94Q3
 
 targets:
-  YouTubePlayer:
+  Walkman:
     type: application
     platform: iOS
     sources:
-      - path: YouTubePlayer
+      - path: Walkman
         type: group
     info:
-      path: YouTubePlayer/Info.plist
+      path: Walkman/Info.plist
       properties:
         CFBundleDisplayName: Walkman
         LSRequiresIPhoneOS: true
@@ -53,48 +53,48 @@ targets:
       - package: YouTubeKit
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.carlopascoli.mytubeplayer
+        PRODUCT_BUNDLE_IDENTIFIER: com.carlopascoli.walkman
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SUPPORTS_MACCATALYST: YES
 
-  YouTubePlayerTests:
+  WalkmanTests:
     type: bundle.unit-test
     platform: iOS
     sources:
-      - path: YouTubePlayerTests
+      - path: WalkmanTests
     dependencies:
-      - target: YouTubePlayer
+      - target: Walkman
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.carlopascoli.mytubeplayer.tests
-        TEST_TARGET_NAME: YouTubePlayer
+        PRODUCT_BUNDLE_IDENTIFIER: com.carlopascoli.walkman.tests
+        TEST_TARGET_NAME: Walkman
         GENERATE_INFOPLIST_FILE: "YES"
 
-  YouTubePlayerUITests:
+  WalkmanUITests:
     type: bundle.ui-testing
     platform: iOS
     sources:
-      - path: YouTubePlayerUITests
+      - path: WalkmanUITests
     dependencies:
-      - target: YouTubePlayer
+      - target: Walkman
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.carlopascoli.mytubeplayer.uitests
-        TEST_TARGET_NAME: YouTubePlayer
+        PRODUCT_BUNDLE_IDENTIFIER: com.carlopascoli.walkman.uitests
+        TEST_TARGET_NAME: Walkman
         GENERATE_INFOPLIST_FILE: "YES"
 
 schemes:
-  YouTubePlayer:
+  Walkman:
     build:
       targets:
-        YouTubePlayer: all
-        YouTubePlayerTests: [test]
-        YouTubePlayerUITests: [test]
+        Walkman: all
+        WalkmanTests: [test]
+        WalkmanUITests: [test]
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - YouTubePlayerTests
-        - YouTubePlayerUITests
+        - WalkmanTests
+        - WalkmanUITests

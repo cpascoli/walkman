@@ -34,6 +34,16 @@ final class NativePlayerModel: ObservableObject {
 
     /// Keep playing through the library when a video ends, like a tape side.
     @Published var isContinuousPlayEnabled = true
+
+    /// Set when the user prefers the embedded player. Playback still comes here
+    /// for recordings with a local copy — the web view can't reach the file and
+    /// can't play in the background — but anything that would have to be
+    /// streamed is handed back, so the preference is honoured for the rest of
+    /// the tape.
+    var playsOnlyLocalCopies = false
+
+    /// Where a handed-back track goes.
+    var onHandOff: ((String) -> Void)?
     @Published private(set) var isLive = false
     /// True when the current video is coming off disk rather than the network.
     @Published private(set) var isPlayingLocalFile = false
@@ -99,7 +109,7 @@ final class NativePlayerModel: ObservableObject {
     func skipForward() {
         cancelPendingAdvance()
         guard let next = queue.advance() else { return }
-        next == videoID ? rewindAndPlay() : start(videoID: next)
+        playOrHandOff(next)
     }
 
     /// Skip back a track. Like a real deck, this restarts the current track
@@ -111,7 +121,19 @@ final class NativePlayerModel: ObservableObject {
             return
         }
         guard let previous = queue.previous() else { return }
-        previous == videoID ? rewindAndPlay() : start(videoID: previous)
+        playOrHandOff(previous)
+    }
+
+    /// Plays a track here, or gives it back to the host when this player
+    /// shouldn't be the one streaming it.
+    private func playOrHandOff(_ videoID: String) {
+        if playsOnlyLocalCopies, downloads.localURL(for: videoID) == nil {
+            onHandOff?(videoID)
+            return
+        }
+
+        // A tape of one means rewind and play it again.
+        videoID == self.videoID ? rewindAndPlay() : start(videoID: videoID)
     }
 
     private func start(videoID: String) {
@@ -180,13 +202,7 @@ final class NativePlayerModel: ObservableObject {
 
             self.isChangingTape = false
             guard let next = self.queue.advance() else { return }
-
-            // A library of one means rewind and play it again.
-            if next == self.videoID {
-                self.rewindAndPlay()
-                return
-            }
-            self.start(videoID: next)
+            self.playOrHandOff(next)
         }
     }
 

@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2B664B1908025B7BE1DBD810"
-               BuildableName = "YouTubePlayer.app"
-               BlueprintName = "YouTubePlayer"
-               ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+               BlueprintIdentifier = "F152BD81437CE1FF5F921471"
+               BuildableName = "Walkman.app"
+               BlueprintName = "Walkman"
+               ReferencedContainer = "container:Walkman.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,10 +29,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "85725A76432339D7146FE627"
-               BuildableName = "YouTubePlayerTests.xctest"
-               BlueprintName = "YouTubePlayerTests"
-               ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+               BlueprintIdentifier = "D62C5A2B1EB7E5A2B910A7B6"
+               BuildableName = "WalkmanTests.xctest"
+               BlueprintName = "WalkmanTests"
+               ReferencedContainer = "container:Walkman.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -43,10 +43,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "19FC432727D7E9BD94E268AC"
-               BuildableName = "YouTubePlayerUITests.xctest"
-               BlueprintName = "YouTubePlayerUITests"
-               ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+               BlueprintIdentifier = "F61DE2F2CD7EF410C65566F6"
+               BuildableName = "WalkmanUITests.xctest"
+               BlueprintName = "WalkmanUITests"
+               ReferencedContainer = "container:Walkman.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -60,10 +60,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2B664B1908025B7BE1DBD810"
-            BuildableName = "YouTubePlayer.app"
-            BlueprintName = "YouTubePlayer"
-            ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+            BlueprintIdentifier = "F152BD81437CE1FF5F921471"
+            BuildableName = "Walkman.app"
+            BlueprintName = "Walkman"
+            ReferencedContainer = "container:Walkman.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -72,10 +72,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "85725A76432339D7146FE627"
-               BuildableName = "YouTubePlayerTests.xctest"
-               BlueprintName = "YouTubePlayerTests"
-               ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+               BlueprintIdentifier = "D62C5A2B1EB7E5A2B910A7B6"
+               BuildableName = "WalkmanTests.xctest"
+               BlueprintName = "WalkmanTests"
+               ReferencedContainer = "container:Walkman.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -83,10 +83,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "19FC432727D7E9BD94E268AC"
-               BuildableName = "YouTubePlayerUITests.xctest"
-               BlueprintName = "YouTubePlayerUITests"
-               ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+               BlueprintIdentifier = "F61DE2F2CD7EF410C65566F6"
+               BuildableName = "WalkmanUITests.xctest"
+               BlueprintName = "WalkmanUITests"
+               ReferencedContainer = "container:Walkman.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -107,10 +107,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2B664B1908025B7BE1DBD810"
-            BuildableName = "YouTubePlayer.app"
-            BlueprintName = "YouTubePlayer"
-            ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+            BlueprintIdentifier = "F152BD81437CE1FF5F921471"
+            BuildableName = "Walkman.app"
+            BlueprintName = "Walkman"
+            ReferencedContainer = "container:Walkman.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -126,10 +126,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2B664B1908025B7BE1DBD810"
-            BuildableName = "YouTubePlayer.app"
-            BlueprintName = "YouTubePlayer"
-            ReferencedContainer = "container:YouTubePlayer.xcodeproj">
+            BlueprintIdentifier = "F152BD81437CE1FF5F921471"
+            BuildableName = "Walkman.app"
+            BlueprintName = "Walkman"
+            ReferencedContainer = "container:Walkman.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

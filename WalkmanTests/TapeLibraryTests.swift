@@ -1,5 +1,5 @@
 import XCTest
-@testable import YouTubePlayer
+@testable import Walkman
 
 @MainActor
 final class TapeLibraryTests: XCTestCase {
