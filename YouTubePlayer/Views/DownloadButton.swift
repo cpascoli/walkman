@@ -14,7 +14,7 @@ struct DownloadButton: View {
                 guard let source else { return }
                 downloads.download(videoID: videoID, source: source)
             } label: {
-                Label("Tape it", systemImage: "recordingtape")
+                Label("Rec", systemImage: "record.circle")
             }
             .buttonStyle(.bordered)
             .tint(Theme.primaryText)
@@ -49,7 +49,7 @@ struct DownloadButton: View {
 
         case .downloaded:
             Menu {
-                Button("Erase Tape", systemImage: "trash", role: .destructive) {
+                Button("Delete Local Copy", systemImage: "trash", role: .destructive) {
                     downloads.delete(videoID: videoID)
                 }
             } label: {
@@ -74,7 +74,7 @@ struct DownloadButton: View {
     }
 
     private var downloadedLabel: String {
-        guard let bytes = downloads.fileSize(for: videoID) else { return "Downloaded" }
-        return "Taped · \(ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file))"
+        guard let bytes = downloads.fileSize(for: videoID) else { return "On device" }
+        return "On device · \(ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file))"
     }
 }

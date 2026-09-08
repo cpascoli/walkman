@@ -89,10 +89,29 @@ final class NativePlayerModel: ObservableObject {
 
     // MARK: - Loading
 
-    /// User-initiated play. Establishes the running order from the library.
-    func load(videoID: String) {
-        queue.rebuild(from: history.entries, startingAt: videoID)
-        start(videoID: videoID)
+    /// User-initiated play. Establishes the running order the request came from.
+    func load(_ request: PlaybackRequest) {
+        queue.rebuild(from: request)
+        start(videoID: request.videoID)
+    }
+
+    /// Skip forward a track, as the deck's ▶▶ key.
+    func skipForward() {
+        cancelPendingAdvance()
+        guard let next = queue.advance() else { return }
+        next == videoID ? rewindAndPlay() : start(videoID: next)
+    }
+
+    /// Skip back a track. Like a real deck, this restarts the current track
+    /// first if you're already past the beginning of it.
+    func skipBackward() {
+        cancelPendingAdvance()
+        if elapsed > 3 {
+            rewindAndPlay()
+            return
+        }
+        guard let previous = queue.previous() else { return }
+        previous == videoID ? rewindAndPlay() : start(videoID: previous)
     }
 
     private func start(videoID: String) {
@@ -184,11 +203,12 @@ final class NativePlayerModel: ObservableObject {
         isChangingTape = false
     }
 
-    /// Re-resolves the current video — stream URLs are IP-bound and expire after a few hours.
+    /// Re-resolves the current video — stream URLs are IP-bound and expire after a
+    /// few hours. Keeps the running order intact.
     func reload() {
         guard let videoID else { return }
         self.videoID = nil
-        load(videoID: videoID)
+        start(videoID: videoID)
     }
 
     private var extractionMethods: [YouTube.ExtractionMethod] {

@@ -8,12 +8,14 @@ struct ContentView: View {
     @ObservedObject var nativeModel: NativePlayerModel
     @ObservedObject var downloads: DownloadManager
     @ObservedObject var queue: PlayQueue
+    @ObservedObject var library: TapeLibrary
 
     @State private var videoInput: String = ""
     @State private var embeddedVideoID: String?
     @State private var engine: PlaybackEngine = .native
     @State private var errorMessage: String?
-    @State private var isShowingHistory = false
+    @State private var isShowingLibrary = false
+    @State private var isShowingSettings = false
 
     @StateObject private var webCoordinator = PlayerCoordinator()
     @State private var embeddedAdvanceTask: Task<Void, Never>?
@@ -37,7 +39,6 @@ struct ContentView: View {
                     loadSlot
                     tapeWindow
                     transportDeck
-                    sourcePanel
                 }
                 .padding(16)
             }
@@ -45,11 +46,14 @@ struct ContentView: View {
         }
         .preferredColorScheme(.dark)
         .tint(Theme.accent)
-        .sheet(isPresented: $isShowingHistory) {
-            HistoryView(store: history, downloads: downloads) { entry in
-                videoInput = entry.id
-                play(videoID: entry.id)
+        .sheet(isPresented: $isShowingLibrary) {
+            LibraryView(store: history, library: library, downloads: downloads) { request in
+                videoInput = request.videoID
+                play(request)
             }
+        }
+        .sheet(isPresented: $isShowingSettings) {
+            SettingsView(model: nativeModel, downloads: downloads, engine: $engine)
         }
         .onAppear {
             webCoordinator.onEnded = advanceEmbedded
@@ -61,7 +65,13 @@ struct ContentView: View {
             nativeModel.pause()
 
             if let id = embeddedVideoID ?? nativeModel.videoID {
-                play(videoID: id)
+                play(
+                    PlaybackRequest(
+                        videoID: id,
+                        running: queue.ids.isEmpty ? [id] : queue.ids,
+                        sourceName: queue.sourceName
+                    )
+                )
             }
         }
     }
@@ -74,8 +84,9 @@ struct ContentView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Wordmark(text: "WALKMAN")
-                Text("Personal Video Player")
+                Text("Personal Video")
                     .legendStyle()
+                    .lineLimit(1)
             }
 
             Spacer(minLength: 0)
@@ -83,14 +94,24 @@ struct ContentView: View {
             IndicatorLamp(isLit: isPlaying)
 
             Button {
-                isShowingHistory = true
+                isShowingLibrary = true
             } label: {
-                Image(systemName: "tray.full")
+                Image(systemName: "rectangle.stack")
                     .font(.system(size: 15, weight: .bold))
             }
-            .buttonStyle(DeckKeyStyle(width: 46, height: 34))
-            .accessibilityIdentifier("historyButton")
+            .buttonStyle(DeckKeyStyle(width: 44, height: 34))
+            .accessibilityIdentifier("libraryButton")
             .accessibilityLabel("Tape library")
+
+            Button {
+                isShowingSettings = true
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 15, weight: .bold))
+            }
+            .buttonStyle(DeckKeyStyle(width: 44, height: 34))
+            .accessibilityIdentifier("settingsButton")
+            .accessibilityLabel("Settings")
 
             CaseScrew()
         }
@@ -175,10 +196,30 @@ struct ContentView: View {
             .padding(8)
             .recessedWell(cornerRadius: 8)
 
+            tapeReadout
             tapeDeckStrip
         }
         .padding(10)
         .raisedPanel(cornerRadius: 10)
+    }
+
+    /// Which tape is loaded and where we are on it.
+    @ViewBuilder
+    private var tapeReadout: some View {
+        if queue.count > 0, !queue.sourceName.isEmpty {
+            HStack(spacing: 8) {
+                Image(systemName: "rectangle.stack")
+                    .font(.system(size: 10))
+                Text(queue.sourceName)
+                    .lineLimit(1)
+                Spacer(minLength: 8)
+                Text("\(queue.position)/\(queue.count)")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+            }
+            .legendStyle()
+            .padding(.horizontal, 6)
+            .padding(.top, 10)
+        }
     }
 
     /// The reels and counter below the window, as on a cassette door.
@@ -221,21 +262,33 @@ struct ContentView: View {
     // MARK: - Transport
 
     private var transportDeck: some View {
-        HStack(spacing: 14) {
-            DeckKey(legend: "Stop", action: stop) {
+        HStack(spacing: 10) {
+            DeckKey(legend: "Rew", width: 52, action: skipBackward) {
+                Image(systemName: "backward.end.fill")
+            }
+            .accessibilityLabel("Previous track")
+            .accessibilityIdentifier("previousButton")
+
+            DeckKey(legend: "Stop", width: 52, action: stop) {
                 Image(systemName: "stop.fill")
             }
             .accessibilityLabel("Stop")
 
             DeckKey(
                 legend: isPlaying ? "Pause" : "Play",
-                width: 86,
+                width: 78,
                 tint: isPlaying ? Theme.accent : Theme.primaryText,
                 action: togglePlayback
             ) {
                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
             }
             .accessibilityLabel(isPlaying ? "Pause" : "Play")
+
+            DeckKey(legend: "FF", width: 52, action: skipForward) {
+                Image(systemName: "forward.end.fill")
+            }
+            .accessibilityLabel("Next track")
+            .accessibilityIdentifier("nextButton")
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
@@ -248,54 +301,6 @@ struct ContentView: View {
         .disabled(currentVideoID == nil)
     }
 
-    // MARK: - Source panel
-
-    private var sourcePanel: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Toggle(isOn: $nativeModel.isContinuousPlayEnabled) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Continuous play")
-                        .legendStyle()
-                    Text("Roll on through the library, 2s between tapes")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Theme.secondaryText)
-                }
-            }
-            .tint(Theme.accent)
-
-            Divider().overlay(Color.black.opacity(0.6))
-
-            Text("Source")
-                .legendStyle()
-
-            Picker("Playback engine", selection: $engine) {
-                ForEach(PlaybackEngine.allCases) { engine in
-                    Text(engine.title).tag(engine)
-                }
-            }
-            .pickerStyle(.segmented)
-
-            Text(engine.subtitle)
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.secondaryText)
-
-            if engine == .native {
-                Divider().overlay(Color.black.opacity(0.6))
-
-                Toggle(isOn: $nativeModel.usesRemoteFallback) {
-                    Text("Remote extraction fallback")
-                        .legendStyle()
-                }
-                .tint(Theme.accent)
-                .onChange(of: nativeModel.usesRemoteFallback) { _, _ in
-                    nativeModel.reload()
-                }
-            }
-        }
-        .padding(14)
-        .raisedPanel()
-    }
-
     // MARK: - Actions
 
     private func loadFromInput() {
@@ -306,21 +311,51 @@ struct ContentView: View {
             errorMessage = "Invalid YouTube URL or video ID"
             return
         }
-        play(videoID: id)
+
+        // A typed ID plays against the whole catalogue.
+        play(
+            PlaybackRequest(
+                videoID: id,
+                running: [id] + history.entries.map(\.id).filter { $0 != id },
+                sourceName: "All Recordings"
+            )
+        )
     }
 
-    private func play(videoID: String) {
+    private func play(_ request: PlaybackRequest) {
         errorMessage = nil
         switch engine {
         case .embedded:
-            if videoID != embeddedVideoID {
-                queue.rebuild(from: history.entries, startingAt: videoID)
-            }
-            embeddedVideoID = videoID
-            history.recordPlay(videoID: videoID)
-            history.resolveDetailsIfNeeded(videoID: videoID)
+            queue.rebuild(from: request)
+            playEmbedded(request.videoID)
         case .native:
-            nativeModel.load(videoID: videoID)
+            nativeModel.load(request)
+        }
+    }
+
+    private func playEmbedded(_ videoID: String) {
+        embeddedVideoID = videoID
+        history.recordPlay(videoID: videoID)
+        history.resolveDetailsIfNeeded(videoID: videoID)
+    }
+
+    private func skipForward() {
+        switch engine {
+        case .embedded:
+            embeddedAdvanceTask?.cancel()
+            if let next = queue.advance() { playEmbedded(next) }
+        case .native:
+            nativeModel.skipForward()
+        }
+    }
+
+    private func skipBackward() {
+        switch engine {
+        case .embedded:
+            embeddedAdvanceTask?.cancel()
+            if let previous = queue.previous() { playEmbedded(previous) }
+        case .native:
+            nativeModel.skipBackward()
         }
     }
 
@@ -336,7 +371,7 @@ struct ContentView: View {
             if next == embeddedVideoID {
                 webCoordinator.play()
             } else {
-                play(videoID: next)
+                playEmbedded(next)
             }
         }
     }

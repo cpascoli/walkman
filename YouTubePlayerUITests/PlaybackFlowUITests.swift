@@ -39,13 +39,13 @@ final class PlaybackFlowUITests: XCTestCase {
         )
 
         // 3. The video shows up in history, and survives the Local filter.
-        app.buttons["historyButton"].tap()
+        app.buttons["libraryButton"].tap()
 
-        let row = app.buttons["historyRow_\(videoID)"]
-        XCTAssertTrue(row.waitForExistence(timeout: 10), "Played video should be in history")
+        // The downloaded recording should be filed under Taped.
+        app.buttons["tapedRow"].tap()
 
-        app.segmentedControls["historyFilter"].buttons["Taped"].tap()
-        XCTAssertTrue(row.waitForExistence(timeout: 5), "Taped video should pass the Taped filter")
+        let row = app.buttons["recordingRow_\(videoID)"]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "Taped recording should be listed under Taped")
 
         // 4. Selecting it plays the local file rather than streaming.
         row.tap()
@@ -99,6 +99,55 @@ final class PlaybackFlowUITests: XCTestCase {
             nextTapeTitle.waitForExistence(timeout: 120),
             "Playback should roll on to the next tape in the library on its own"
         )
+    }
+
+    /// Create a tape, put a recording on it, and play from the tape.
+    func testCreateTapeAddRecordingAndPlayFromIt() {
+        load(videoID)
+        XCTAssertTrue(
+            app.descendants(matching: .any)["downloadButton"].waitForExistence(timeout: 90),
+            "Seed recording should resolve"
+        )
+
+        app.buttons["libraryButton"].tap()
+
+        // Create a tape, accepting the pre-filled name.
+        app.buttons["newTapeButton"].tap()
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        alert.buttons["Create"].tap()
+
+        let tapeRow = app.buttons["tapeRow_Tape 1"]
+        XCTAssertTrue(tapeRow.waitForExistence(timeout: 5), "New tape should appear on the shelf")
+
+        // Put the recording on it from the catalogue.
+        app.buttons["allRecordingsRow"].tap()
+        let recording = app.buttons["recordingRow_\(videoID)"]
+        XCTAssertTrue(recording.waitForExistence(timeout: 10))
+        recording.press(forDuration: 1.2)
+
+        let addToTape = app.buttons["Add to Tape"]
+        XCTAssertTrue(addToTape.waitForExistence(timeout: 5), "Context menu should offer Add to Tape")
+        addToTape.tap()
+
+        let tapeChoice = app.buttons["Tape 1"]
+        XCTAssertTrue(tapeChoice.waitForExistence(timeout: 5))
+        tapeChoice.tap()
+
+        // Back to the shelf, open the tape, and play its track.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(tapeRow.waitForExistence(timeout: 5))
+        tapeRow.tap()
+
+        let track = app.buttons["trackRow_\(videoID)"]
+        XCTAssertTrue(track.waitForExistence(timeout: 5), "The recording should be on the tape")
+        track.tap()
+
+        // The deck should now report that it is playing from that tape.
+        let readout = app.staticTexts.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", "Tape 1")
+        ).firstMatch
+        XCTAssertTrue(readout.waitForExistence(timeout: 30), "The deck should show the loaded tape")
     }
 
     private func clearInput() {

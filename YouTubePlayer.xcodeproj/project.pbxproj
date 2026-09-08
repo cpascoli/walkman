@@ -16,20 +16,25 @@
 		36559B06C54C3A4062C244C7 /* PlayQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91715685075B5664410CFE73 /* PlayQueueTests.swift */; };
 		3E0ADE9BC534DD30268F753A /* PlayQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DCDE4E1B3B35A144511764 /* PlayQueue.swift */; };
 		52F2AD8255A649A2DE54D91C /* VideoSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB915B1241E4D5038CBC095 /* VideoSurface.swift */; };
+		62E975C1500366B5FDE760C8 /* CassetteRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A44593CD5E7793BE8220E68 /* CassetteRow.swift */; };
 		74245F2E3CDE86851C5F48C4 /* NativePlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70CC452534A921550833DECD /* NativePlayerModel.swift */; };
+		765593B47C23B051D9A06ED2 /* TapeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227A3623C84C0BBE98E3FC05 /* TapeLibrary.swift */; };
 		7E1594A0E39BE56999282EFA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99897DB7D72478354E0DF8D0 /* ContentView.swift */; };
 		7E9B3A1EC634B03F75EA97B6 /* RetroControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7144D2F50A5F5CC022EEDE49 /* RetroControls.swift */; };
 		8829E7A4D4E2EECC0486494A /* StreamResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D09EB16E54A32695CB739F5 /* StreamResolver.swift */; };
+		89A6A3F7A72435E466C9357B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5879769BB6F89492B4530C8C /* SettingsView.swift */; };
 		90653A4FDB0CACAFF32C0F50 /* DownloadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2525EA20E1739E62AB6E09D1 /* DownloadButton.swift */; };
-		A5A8838609B9BF4524620131 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E0A5463613EA20ABC55C5D /* HistoryView.swift */; };
 		B72CF8D617BF7A1BFB8F98D7 /* HistoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35BE6DB3C4931B71DBC16BCD /* HistoryEntry.swift */; };
 		D29E2BCEDC412E8797F16E02 /* PlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3957083D36EAD4D9847806C7 /* PlaybackEngine.swift */; };
 		D2D3F420CCD43D7C4A6C1616 /* NowPlayingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7719C859EBC953EF72F09A30 /* NowPlayingController.swift */; };
 		D80FC9DC039E1857DF1041BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71DFB23E3CB70CDD7D838938 /* Assets.xcassets */; };
 		DD1A391C7AFFA51C98F0C77D /* PlaybackFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B74D582AE5763D0E03DF55 /* PlaybackFlowUITests.swift */; };
 		E367D69E4DE58686B5A08213 /* YouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8E1D67DFDBA1884F1FEF020A /* YouTubeKit */; };
+		EDA986B6547F9DAE9F980612 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07856DB5D5C26DEE8EEB2E5D /* LibraryView.swift */; };
+		F4B00B88820CA061C0CDC6A9 /* TapeLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D7D3D7524C8B1E0B8BE733 /* TapeLibraryTests.swift */; };
 		FA81DB0AE8522123834BE192 /* YouTubeVideoIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B86DC0D029E570E33657F1 /* YouTubeVideoIDTests.swift */; };
 		FB87EFAC2C7E45E9E740AC1B /* YouTubePlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7693012FE569207473628540 /* YouTubePlayerApp.swift */; };
+		FE8D7366463A84E78C340F4E /* Tape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9125602829353D4CD4DBB3E5 /* Tape.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,14 +55,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		06D7D3D7524C8B1E0B8BE733 /* TapeLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapeLibraryTests.swift; sourceTree = "<group>"; };
+		07856DB5D5C26DEE8EEB2E5D /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		08F1827E3D7955AAF1D24D7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		09C2D509B1A616461400AB8B /* YouTubePlayer.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = YouTubePlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B43E3EA2D496AC496BEF4C5 /* YouTubePlayerTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = YouTubePlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		227A3623C84C0BBE98E3FC05 /* TapeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapeLibrary.swift; sourceTree = "<group>"; };
 		2525EA20E1739E62AB6E09D1 /* DownloadButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadButton.swift; sourceTree = "<group>"; };
 		35BE6DB3C4931B71DBC16BCD /* HistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEntry.swift; sourceTree = "<group>"; };
 		3957083D36EAD4D9847806C7 /* PlaybackEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackEngine.swift; sourceTree = "<group>"; };
+		3A44593CD5E7793BE8220E68 /* CassetteRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CassetteRow.swift; sourceTree = "<group>"; };
 		3D09EB16E54A32695CB739F5 /* StreamResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamResolver.swift; sourceTree = "<group>"; };
 		4A9BC531F7FC724C419C0352 /* NativePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePlayerView.swift; sourceTree = "<group>"; };
+		5879769BB6F89492B4530C8C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		64D9B5A608A100AB137B42A1 /* YouTubeVideoID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeVideoID.swift; sourceTree = "<group>"; };
 		70CC452534A921550833DECD /* NativePlayerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePlayerModel.swift; sourceTree = "<group>"; };
 		7144D2F50A5F5CC022EEDE49 /* RetroControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetroControls.swift; sourceTree = "<group>"; };
@@ -66,9 +76,9 @@
 		7365C18366FC2EF5B5543FA7 /* WebPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPlayerView.swift; sourceTree = "<group>"; };
 		7693012FE569207473628540 /* YouTubePlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubePlayerApp.swift; sourceTree = "<group>"; };
 		7719C859EBC953EF72F09A30 /* NowPlayingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingController.swift; sourceTree = "<group>"; };
+		9125602829353D4CD4DBB3E5 /* Tape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tape.swift; sourceTree = "<group>"; };
 		91715685075B5664410CFE73 /* PlayQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayQueueTests.swift; sourceTree = "<group>"; };
 		91B86DC0D029E570E33657F1 /* YouTubeVideoIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeVideoIDTests.swift; sourceTree = "<group>"; };
-		91E0A5463613EA20ABC55C5D /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		99897DB7D72478354E0DF8D0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C4B74D582AE5763D0E03DF55 /* PlaybackFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackFlowUITests.swift; sourceTree = "<group>"; };
 		C4DCDE4E1B3B35A144511764 /* PlayQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayQueue.swift; sourceTree = "<group>"; };
@@ -97,6 +107,8 @@
 				3957083D36EAD4D9847806C7 /* PlaybackEngine.swift */,
 				72617F20A254EADF915C9835 /* PlaybackHistoryStore.swift */,
 				C4DCDE4E1B3B35A144511764 /* PlayQueue.swift */,
+				9125602829353D4CD4DBB3E5 /* Tape.swift */,
+				227A3623C84C0BBE98E3FC05 /* TapeLibrary.swift */,
 				64D9B5A608A100AB137B42A1 /* YouTubeVideoID.swift */,
 			);
 			path = Model;
@@ -137,6 +149,7 @@
 			isa = PBXGroup;
 			children = (
 				91715685075B5664410CFE73 /* PlayQueueTests.swift */,
+				06D7D3D7524C8B1E0B8BE733 /* TapeLibraryTests.swift */,
 				91B86DC0D029E570E33657F1 /* YouTubeVideoIDTests.swift */,
 			);
 			path = YouTubePlayerTests;
@@ -145,9 +158,11 @@
 		918EFDC30B3203C7C781ED37 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3A44593CD5E7793BE8220E68 /* CassetteRow.swift */,
 				2525EA20E1739E62AB6E09D1 /* DownloadButton.swift */,
-				91E0A5463613EA20ABC55C5D /* HistoryView.swift */,
+				07856DB5D5C26DEE8EEB2E5D /* LibraryView.swift */,
 				7144D2F50A5F5CC022EEDE49 /* RetroControls.swift */,
+				5879769BB6F89492B4530C8C /* SettingsView.swift */,
 				F2C09995B2C60B1F0B1A65D3 /* Theme.swift */,
 			);
 			path = Views;
@@ -311,6 +326,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				36559B06C54C3A4062C244C7 /* PlayQueueTests.swift in Sources */,
+				F4B00B88820CA061C0CDC6A9 /* TapeLibraryTests.swift in Sources */,
 				FA81DB0AE8522123834BE192 /* YouTubeVideoIDTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -319,11 +335,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62E975C1500366B5FDE760C8 /* CassetteRow.swift in Sources */,
 				7E1594A0E39BE56999282EFA /* ContentView.swift in Sources */,
 				90653A4FDB0CACAFF32C0F50 /* DownloadButton.swift in Sources */,
 				22A6BD25AE34CA61CC3B79F8 /* DownloadManager.swift in Sources */,
 				B72CF8D617BF7A1BFB8F98D7 /* HistoryEntry.swift in Sources */,
-				A5A8838609B9BF4524620131 /* HistoryView.swift in Sources */,
+				EDA986B6547F9DAE9F980612 /* LibraryView.swift in Sources */,
 				74245F2E3CDE86851C5F48C4 /* NativePlayerModel.swift in Sources */,
 				1A9EB664B19120BA6CF709DF /* NativePlayerView.swift in Sources */,
 				D2D3F420CCD43D7C4A6C1616 /* NowPlayingController.swift in Sources */,
@@ -331,7 +348,10 @@
 				D29E2BCEDC412E8797F16E02 /* PlaybackEngine.swift in Sources */,
 				23115B6F906A33D3900B0D11 /* PlaybackHistoryStore.swift in Sources */,
 				7E9B3A1EC634B03F75EA97B6 /* RetroControls.swift in Sources */,
+				89A6A3F7A72435E466C9357B /* SettingsView.swift in Sources */,
 				8829E7A4D4E2EECC0486494A /* StreamResolver.swift in Sources */,
+				FE8D7366463A84E78C340F4E /* Tape.swift in Sources */,
+				765593B47C23B051D9A06ED2 /* TapeLibrary.swift in Sources */,
 				18B78C5C1BDE1B1ED08FE837 /* Theme.swift in Sources */,
 				52F2AD8255A649A2DE54D91C /* VideoSurface.swift in Sources */,
 				306CDCDA69540B95D478A547 /* WebPlayerView.swift in Sources */,

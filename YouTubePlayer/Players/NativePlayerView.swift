@@ -66,7 +66,7 @@ struct NativePlayerView: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(Theme.led)
                 } else if model.isPlayingLocalFile {
-                    Label("Local tape", systemImage: "internaldrive")
+                    Label("Playing local copy", systemImage: "internaldrive")
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(Theme.accent)
                         .accessibilityIdentifier("localPlaybackBadge")
