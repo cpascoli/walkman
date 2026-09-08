@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04DC770234943D4BCDD842D7 /* DemoWalkthrough.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B432373442224D56D81CB55 /* DemoWalkthrough.swift */; };
 		189160E71DF8070374B6831F /* NativePlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F8F5E62F23342C51FA1531F /* NativePlayerModel.swift */; };
 		1AE6950663BF2FAA782DDC0F /* VideoSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1422CB92572326F47980969 /* VideoSurface.swift */; };
 		1D37EF8735F9FD40BF21FBA7 /* YouTubeVideoIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC9ACA863DDD38CD35A1B37 /* YouTubeVideoIDTests.swift */; };
@@ -57,6 +58,7 @@
 /* Begin PBXFileReference section */
 		12653A6281347E224E9FF152 /* HistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEntry.swift; sourceTree = "<group>"; };
 		197380F370937A93B85B9F5A /* PlayQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayQueueTests.swift; sourceTree = "<group>"; };
+		1B432373442224D56D81CB55 /* DemoWalkthrough.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoWalkthrough.swift; sourceTree = "<group>"; };
 		225FECFD8DA3C59887943E48 /* YouTubeVideoID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeVideoID.swift; sourceTree = "<group>"; };
 		2470493D55072AA70378CD12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		274B8A8992E77718414245BB /* WalkmanTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = WalkmanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -152,6 +154,7 @@
 		9D6BDDC554511C95AE5FE65A /* WalkmanUITests */ = {
 			isa = PBXGroup;
 			children = (
+				1B432373442224D56D81CB55 /* DemoWalkthrough.swift */,
 				7710DCC79A67CA92C16F385F /* PlaybackFlowUITests.swift */,
 			);
 			path = WalkmanUITests;
@@ -325,6 +328,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04DC770234943D4BCDD842D7 /* DemoWalkthrough.swift in Sources */,
 				9929B27CC997709BB48131B7 /* PlaybackFlowUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

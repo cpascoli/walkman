@@ -97,4 +97,20 @@ schemes:
       config: Debug
       targets:
         - WalkmanTests
+        # DemoWalkthrough is a recording script, not a test.
+        - name: WalkmanUITests
+          skippedTests:
+            - DemoWalkthrough
+
+  # Used only by Tools/record-demo.sh to capture the README walkthrough.
+  Walkman-Demo:
+    build:
+      targets:
+        Walkman: all
+        WalkmanUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
         - WalkmanUITests

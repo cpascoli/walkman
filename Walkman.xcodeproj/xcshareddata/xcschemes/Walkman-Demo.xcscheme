@@ -29,20 +29,6 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D62C5A2B1EB7E5A2B910A7B6"
-               BuildableName = "WalkmanTests.xctest"
-               BlueprintName = "WalkmanTests"
-               ReferencedContainer = "container:Walkman.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "F61DE2F2CD7EF410C65566F6"
                BuildableName = "WalkmanUITests.xctest"
                BlueprintName = "WalkmanUITests"
@@ -72,27 +58,11 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D62C5A2B1EB7E5A2B910A7B6"
-               BuildableName = "WalkmanTests.xctest"
-               BlueprintName = "WalkmanTests"
-               ReferencedContainer = "container:Walkman.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "F61DE2F2CD7EF410C65566F6"
                BuildableName = "WalkmanUITests.xctest"
                BlueprintName = "WalkmanUITests"
                ReferencedContainer = "container:Walkman.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "DemoWalkthrough">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
       <CommandLineArguments>
