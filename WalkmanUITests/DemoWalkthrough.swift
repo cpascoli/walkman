@@ -10,7 +10,7 @@ import XCTest
 /// job, including the capture and the GIF.
 final class DemoWalkthrough: XCTestCase {
 
-    private let videoID = "jNQXAC9IVRw"
+    private let videoID = "KsE9iXoXB6s"
 
     func testRecordDemo() throws {
         let app = XCUIApplication()
@@ -35,7 +35,7 @@ final class DemoWalkthrough: XCTestCase {
         // 3. Record it to the device.
         rec.tap()
         XCTAssertTrue(
-            app.descendants(matching: .any)["downloadedBadge"].waitForExistence(timeout: 120)
+            app.descendants(matching: .any)["downloadedBadge"].waitForExistence(timeout: 300)
         )
         beat(1.8)
 

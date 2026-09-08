@@ -3,12 +3,23 @@
 # recording the simulator, then turning the capture into a GIF.
 #
 # Usage: Tools/record-demo.sh [simulator name]
+#
+# Env overrides:
+#   SPEEDUP=2.5      playback rate of the finished GIF
+#   FPS=8            frames per second in the GIF
+#   WIDTH=280        GIF width in pixels
+#   KEEP_CAPTURE=1   keep the .mov so it can be re-encoded without re-recording
 set -euo pipefail
 
 SIM="${1:-iPhone 17 Pro}"
+SPEEDUP="${SPEEDUP:-2.5}"
+FPS="${FPS:-8}"
+WIDTH="${WIDTH:-280}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
-trap 'rm -rf "$WORK"' EXIT
+if [ "${KEEP_CAPTURE:-0}" != "1" ]; then
+  trap 'rm -rf "$WORK"' EXIT
+fi
 
 DEVICE=$(xcrun simctl list devices available \
   | grep "$SIM (" | head -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/')
@@ -31,6 +42,7 @@ kill -INT $REC 2>/dev/null || true
 sleep 4
 
 echo "Encoding…"
-swift "$ROOT/Tools/extract-frames.swift" "$WORK/demo.mov" "$WORK/frames" 8 2.0 280
+swift "$ROOT/Tools/extract-frames.swift" "$WORK/demo.mov" "$WORK/frames" "$FPS" "$SPEEDUP" "$WIDTH"
 python3 "$ROOT/Tools/build-gif.py" "$WORK/frames" "$ROOT/Docs/demo.gif"
 echo "Wrote Docs/demo.gif"
+[ "${KEEP_CAPTURE:-0}" = "1" ] && echo "Capture kept at $WORK/demo.mov"
