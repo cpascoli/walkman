@@ -74,7 +74,155 @@ extraction breaks — YouTube changes its unofficial API from time to time. It
 can't play in the background. There's also a remote-extraction fallback that
 routes through YouTubeKit's server when local extraction fails.
 
-## Building
+## Running it on your iPhone
+
+Written for someone who has never built an iOS app. Budget about half an hour,
+most of which is Xcode downloading.
+
+### What you need
+
+- A Mac that can run **Xcode 26** (free from the Mac App Store, ~15 GB).
+- An **iPhone on iOS 17 or later**, and its cable.
+- An **Apple ID**. A free one is enough — you do *not* need the paid
+  $99/year Apple Developer Program.
+
+|                              | Free Apple ID | Developer Program |
+| ---------------------------- | ------------- | ----------------- |
+| App keeps working for        | 7 days        | 1 year            |
+| Sideloaded apps at once      | 3             | no practical limit |
+| New app IDs per week         | 10            | no practical limit |
+
+Everything in this app — including background audio — works on a free account.
+The only real cost is reinstalling once a week.
+
+### 1. Install the tools
+
+Install Xcode from the Mac App Store, open it once and accept the licence
+prompt. Then:
+
+```sh
+xcode-select --install                  # command line tools, if you don't have them
+brew install xcodegen                   # see brew.sh if you don't have Homebrew
+```
+
+### 2. Sign in to Xcode with your Apple ID
+
+**Xcode → Settings (⌘,) → Accounts → + → Apple ID**, and sign in. A team called
+*"Your Name (Personal Team)"* appears. That is your free team.
+
+### 3. Let Xcode issue you a signing certificate
+
+```sh
+xcodegen generate
+open Walkman.xcodeproj
+```
+
+In Xcode, select the **Walkman** target → **Signing & Capabilities** tab → tick
+**Automatically manage signing** → choose your team in the **Team** dropdown.
+Xcode creates a development certificate for you. Ignore any error about the
+bundle identifier for now; step 4 fixes it.
+
+### 4. Set your team and your own bundle identifier
+
+A bundle identifier is the app's globally unique name across all of Apple, so
+you **cannot** reuse mine — you'll get *"Failed Registering Bundle Identifier"*
+if you try. Pick something based on your own name or domain.
+
+Find your Team ID — ten characters like `7DZ8FR94Q3`:
+
+```sh
+security find-identity -v -p codesigning \
+  | sed -n 's/.*"\(Apple Development: .*\)"/\1/p' | head -1 \
+  | xargs -I{} security find-certificate -c "{}" -p \
+  | openssl x509 -noout -subject | tr '/' '\n' | grep '^OU=' | cut -d= -f2
+```
+
+Then edit **`project.yml`** — five values in total:
+
+```yaml
+options:
+  bundleIdPrefix: com.yourname              # was com.carlopascoli
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: ABCDE12345            # your Team ID from above
+
+# ...and the three bundle identifiers further down:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.walkman
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.walkman.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.walkman.uitests
+```
+
+Regenerate the Xcode project so the changes take effect:
+
+```sh
+xcodegen generate
+```
+
+> **Why not just change it in Xcode?** You can, but `project.yml` is the source
+> of truth and `xcodegen generate` overwrites the project file. Anything you
+> change only in Xcode's UI will be lost the next time the project is
+> regenerated.
+
+### 5. Connect your iPhone
+
+Unlock the phone, plug it in, tap **Trust** when it asks, and enter your
+passcode. Check the Mac can see it:
+
+```sh
+xcrun devicectl list devices
+```
+
+Your iPhone should be listed as `connected`.
+
+### 6. Build and install
+
+**In Xcode** (easiest): pick your iPhone from the device menu in the toolbar,
+then press **⌘R**.
+
+**Or from the terminal:**
+
+```sh
+# build and sign
+xcodebuild -project Walkman.xcodeproj -scheme Walkman \
+  -destination 'generic/platform=iOS' -allowProvisioningUpdates build
+
+# find the built app
+APP=$(xcodebuild -project Walkman.xcodeproj -scheme Walkman \
+  -destination 'generic/platform=iOS' -showBuildSettings \
+  | awk -F' = ' '/ BUILT_PRODUCTS_DIR /{print $2}' | head -1)
+
+# install it (use the Identifier from `devicectl list devices`)
+xcrun devicectl device install app --device <YOUR-DEVICE-IDENTIFIER> "$APP/Walkman.app"
+```
+
+### 7. Trust the app on your iPhone
+
+The first launch will say **"Untrusted Developer"**. On the phone:
+
+**Settings → General → VPN & Device Management →** under *Developer App*, tap
+your Apple ID **→ Trust**.
+
+Then open Walkman from the home screen.
+
+### 8. A week later
+
+With a free Apple ID the signature expires after 7 days and the app stops
+opening. Repeat step 6 to reinstall it. Your tapes, catalogue and recordings
+survive as long as you don't delete the app.
+
+### If something goes wrong
+
+| Message | What it means | Fix |
+| ------- | ------------- | --- |
+| `The executable is not codesigned` | No signing team is set | Step 4 |
+| `Failed Registering Bundle Identifier … not available` | Someone already owns that bundle ID | Choose your own in step 4 |
+| `No profiles for 'com.…' were found` | Xcode hasn't created a provisioning profile yet | Add `-allowProvisioningUpdates`, or press Run in Xcode once |
+| `Untrusted Developer` on the phone | The app is installed but not trusted | Step 7 |
+| iPhone missing from `devicectl list devices` | Not paired | Unlock the phone, reconnect, tap *Trust This Computer* |
+| `Unable to install … maximum number of apps` | Free accounts allow 3 sideloaded apps | Delete another sideloaded app |
+
+## Building (if you already know Xcode)
 
 Requires Xcode 26, iOS 17+, and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
@@ -86,7 +234,7 @@ open Walkman.xcodeproj
 
 `project.yml` is the source of truth — the `.xcodeproj` is generated, so run
 `xcodegen generate` after changing targets, files or settings. Set
-`DEVELOPMENT_TEAM` in `project.yml` to your own team to run on a device.
+`DEVELOPMENT_TEAM` and the bundle identifiers in `project.yml`, not in Xcode.
 
 ## Tests
 
