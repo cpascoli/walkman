@@ -18,6 +18,21 @@ enum StreamResolver {
         case adaptive(video: URL, audio: URL)
         /// Live HLS manifest, which `AVPlayer` handles natively.
         case hls(URL)
+
+        /// The length YouTube states in the stream URL's `dur` parameter.
+        /// More trustworthy than the asset's own duration, which for some older
+        /// muxed files comes out at double the real length.
+        var statedDuration: TimeInterval? {
+            let url: URL
+            switch self {
+            case .progressive(let progressive): url = progressive
+            case .adaptive(let video, _): url = video
+            case .hls: return nil
+            }
+            return URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first { $0.name == "dur" }?.value
+                .flatMap(TimeInterval.init)
+        }
     }
 
     struct Quality: Identifiable, Hashable {
@@ -61,6 +76,25 @@ enum StreamResolver {
         }
         throw ResolverError.noPlayableStream
     }
+
+    /// Something that can start playing straight away while `best` is built.
+    ///
+    /// Building an adaptive composition means AVFoundation reads through much of
+    /// the video file first, so the time grows with the file: about a second at
+    /// 360p but over ten at 1080p. The smallest pair at 360p or above gets sound
+    /// going while the real one is built. Nil when `best` is itself that quick.
+    ///
+    /// Not the muxed 360p file, which looks ideal but YouTube now refuses —
+    /// AVFoundation takes a dozen seconds to give up on it.
+    static func quickStart(from qualities: [Quality], below best: Quality) -> Source? {
+        guard best.id > quickStartResolution, case .adaptive = best.source else { return nil }
+        return qualities
+            .filter { $0.id >= quickStartResolution && $0.id < best.id }
+            .min { $0.id < $1.id }?
+            .source
+    }
+
+    static let quickStartResolution = 360
 
     /// Builds one option per available resolution, preferring adaptive pairs
     /// (which reach 1080p+) and filling in any resolution only progressive offers.

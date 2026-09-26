@@ -13,13 +13,15 @@ import UIKit
 struct VideoSurface: UIViewControllerRepresentable {
 
     let player: AVPlayer
+    /// Off for search previews, which shouldn't float over the rest of the app.
+    var allowsPictureInPicture = true
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
         controller.player = player
         controller.videoGravity = .resizeAspect
-        controller.allowsPictureInPicturePlayback = true
-        controller.canStartPictureInPictureAutomaticallyFromInline = true
+        controller.allowsPictureInPicturePlayback = allowsPictureInPicture
+        controller.canStartPictureInPictureAutomaticallyFromInline = allowsPictureInPicture
         controller.delegate = context.coordinator
 
         context.coordinator.attach(controller: controller, player: player)

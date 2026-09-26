@@ -25,9 +25,13 @@ final class NativePlayerModel: ObservableObject {
     @Published private(set) var thumbnailURL: URL?
     @Published private(set) var qualities: [Quality] = []
     @Published private(set) var selectedQualityID: Int?
+    /// A quick low-quality stream is playing while the selected quality is built.
+    @Published private(set) var isUpgradingQuality = false
     @Published private(set) var isPlaying = false
     /// Current playback position, republished for the tape counter.
     @Published private(set) var elapsed: TimeInterval = 0
+    /// Length of the current item, once known — how far through the tape we are.
+    @Published private(set) var duration: TimeInterval?
 
     /// True during the silent gap between one tape and the next.
     @Published private(set) var isChangingTape = false
@@ -246,6 +250,15 @@ final class NativePlayerModel: ObservableObject {
             self.qualities = qualities
             self.isLive = isLive
             self.state = .ready
+
+            // Get sound going now rather than after the best quality is built.
+            if let quick = StreamResolver.quickStart(from: qualities, below: best),
+               let asset = try? await StreamResolver.makeAsset(for: quick),
+               !Task.isCancelled, self.videoID == videoID {
+                isUpgradingQuality = true
+                install(AVPlayerItem(asset: asset), resumeAt: .zero, shouldResume: true)
+            }
+            guard !Task.isCancelled, self.videoID == videoID else { return }
             select(best, preservingPosition: false)
         } catch is CancellationError {
             return
@@ -293,12 +306,25 @@ final class NativePlayerModel: ObservableObject {
             do {
                 let item = try await StreamResolver.makePlayerItem(for: quality.source)
                 guard !Task.isCancelled, self.selectedQualityID == quality.id else { return }
-                self.install(item, resumeAt: resumeAt, shouldResume: shouldResume)
+
+                if self.isUpgradingQuality {
+                    // Take over from the quick stream wherever it has got to,
+                    // and only keep playing if the user hasn't paused it meanwhile.
+                    self.isUpgradingQuality = false
+                    self.install(item, resumeAt: self.player.currentTime(), shouldResume: self.player.rate != 0)
+                } else {
+                    self.install(item, resumeAt: resumeAt, shouldResume: shouldResume)
+                }
             } catch is CancellationError {
                 return
             } catch {
                 guard !Task.isCancelled else { return }
-                self.state = .failed(Self.message(for: error))
+                if self.isUpgradingQuality {
+                    // The quick stream is still playing; better that than nothing.
+                    self.isUpgradingQuality = false
+                } else {
+                    self.state = .failed(Self.message(for: error))
+                }
             }
         }
     }
@@ -334,7 +360,12 @@ final class NativePlayerModel: ObservableObject {
             .sink { [weak self, weak item] _ in
                 guard let self, let item else { return }
                 let reason = item.error?.localizedDescription ?? "Playback failed."
-                Task { @MainActor in self.state = .failed(reason) }
+                Task { @MainActor in
+                    // A stand-in stream failing doesn't matter once it's been replaced,
+                    // or while the real one is still on its way.
+                    guard self.player.currentItem === item, !self.isUpgradingQuality else { return }
+                    self.state = .failed(reason)
+                }
             }
     }
 
@@ -374,10 +405,12 @@ final class NativePlayerModel: ObservableObject {
         state = .idle
         videoID = nil
         elapsed = 0
+        duration = nil
         title = nil
         thumbnailURL = nil
         qualities = []
         selectedQualityID = nil
+        isUpgradingQuality = false
         isLive = false
         isPlayingLocalFile = false
         nowPlaying.clear()
@@ -408,11 +441,14 @@ final class NativePlayerModel: ObservableObject {
         guard videoID != nil else { return }
         let position = player.currentTime().seconds
         elapsed = position.isFinite ? position : 0
-        let duration = player.currentItem?.duration.seconds
+        let itemDuration = player.currentItem?.duration.seconds
+        let stated = isPlayingLocalFile ? nil : qualities.first { $0.id == selectedQualityID }?.source.statedDuration
+        let duration = stated ?? ((itemDuration?.isFinite ?? false) ? itemDuration : nil)
+        self.duration = duration
         nowPlaying.update(
             title: title ?? videoID ?? "YouTube video",
             thumbnailURL: thumbnailURL ?? videoID.flatMap(HistoryEntry.defaultThumbnailURL),
-            duration: (duration?.isFinite ?? false) ? duration : nil,
+            duration: duration,
             elapsed: player.currentTime().seconds.isFinite ? player.currentTime().seconds : 0,
             rate: player.rate,
             isLive: isLive

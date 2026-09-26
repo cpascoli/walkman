@@ -21,6 +21,9 @@ struct ContentView: View {
     @State private var errorMessage: String?
     @State private var isShowingLibrary = false
     @State private var isShowingSettings = false
+    @State private var isShowingSearch = false
+    /// Shows the picture instead of the cassette.
+    @AppStorage("showsVideo") private var showsVideo = false
 
     @StateObject private var webCoordinator = PlayerCoordinator()
     @State private var embeddedAdvanceTask: Task<Void, Never>?
@@ -56,6 +59,9 @@ struct ContentView: View {
                 videoInput = request.videoID
                 play(request)
             }
+        }
+        .sheet(isPresented: $isShowingSearch) {
+            SearchView(store: history, library: library, onPreviewStart: pauseDeck)
         }
         .sheet(isPresented: $isShowingSettings) {
             SettingsView(model: nativeModel, downloads: downloads, engine: $engine)
@@ -161,6 +167,17 @@ struct ContentView: View {
                 Button("Load", action: loadFromInput)
                     .buttonStyle(DeckKeyStyle(width: 66, height: 44, tint: Theme.accent))
                     .accessibilityIdentifier("playButton")
+
+                Button {
+                    isInputFocused = false
+                    isShowingSearch = true
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 15, weight: .bold))
+                }
+                .buttonStyle(DeckKeyStyle(width: 44, height: 44))
+                .accessibilityIdentifier("searchButton")
+                .accessibilityLabel("Search YouTube")
             }
 
             if let errorMessage {
@@ -182,14 +199,27 @@ struct ContentView: View {
                 switch activeEngine {
                 case .embedded:
                     if let embeddedVideoID {
-                        YouTubePlayerView(videoId: embeddedVideoID, coordinator: webCoordinator)
-                            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                        ZStack {
+                            // The web view has to stay in the hierarchy to keep
+                            // playing, so the cassette covers it rather than replacing it.
+                            YouTubePlayerView(videoId: embeddedVideoID, coordinator: webCoordinator)
+                                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+
+                            if !showsVideo {
+                                CassetteBay { cassette(for: embeddedVideoID) }
+                                    .background(Theme.recess)
+                            }
+                        }
                     } else {
                         emptyBay
                     }
                 case .native:
-                    if nativeModel.videoID != nil {
-                        NativePlayerView(model: nativeModel, downloads: downloads)
+                    if let videoID = nativeModel.videoID {
+                        NativePlayerView(
+                            model: nativeModel,
+                            downloads: downloads,
+                            cassette: showsVideo ? nil : cassette(for: videoID)
+                        )
                     } else {
                         emptyBay
                     }
@@ -227,7 +257,28 @@ struct ContentView: View {
     /// The reels and counter below the window, as on a cassette door.
     private var tapeDeckStrip: some View {
         HStack {
-            TapeTransport(isRunning: isPlaying)
+            VStack(spacing: 5) {
+                Button {
+                    showsVideo.toggle()
+                } label: {
+                    Image(systemName: showsVideo ? "recordingtape" : "play.rectangle")
+                        .font(.system(size: 13, weight: .bold))
+                }
+                .buttonStyle(DeckKeyStyle(width: 44, height: 28))
+                .accessibilityIdentifier("videoToggle")
+                .accessibilityLabel(showsVideo ? "Show cassette" : "Show video")
+
+                Text(showsVideo ? "Tape" : "Video")
+                    .legendStyle()
+            }
+            .disabled(currentVideoID == nil)
+            .opacity(currentVideoID == nil ? 0.45 : 1)
+
+            // With the picture up, the reels live down here instead.
+            if showsVideo {
+                TapeTransport(isRunning: isPlaying)
+                    .padding(.leading, 8)
+            }
 
             if nativeModel.isChangingTape {
                 HStack(spacing: 6) {
@@ -247,6 +298,31 @@ struct ContentView: View {
         }
         .padding(.horizontal, 6)
         .padding(.top, 12)
+    }
+
+    /// The tape in the deck, labelled with whatever the catalogue knows about it.
+    private func cassette(for videoID: String) -> CassetteView {
+        let entry = history.entries.first { $0.id == videoID }
+        let isNative = activeEngine == .native
+        // An entry titled with its bare ID is still waiting for its details.
+        let title = [entry?.title, isNative ? nativeModel.title : nil]
+            .compactMap { $0 }
+            .first { $0 != videoID } ?? videoID
+
+        var progress: Double?
+        var length: String?
+        if isNative, !nativeModel.isLive, let duration = nativeModel.duration, duration > 0 {
+            progress = nativeModel.elapsed / duration
+            length = Duration.seconds(duration).formatted(.time(pattern: duration >= 3600 ? .hourMinuteSecond : .minuteSecond))
+        }
+
+        return CassetteView(
+            title: title,
+            thumbnailURL: entry?.thumbnailURL ?? HistoryEntry.defaultThumbnailURL(for: videoID),
+            isRunning: isPlaying,
+            progress: progress,
+            length: length
+        )
     }
 
     private var emptyBay: some View {
@@ -412,6 +488,15 @@ struct ContentView: View {
             isPlaying ? webCoordinator.pause() : webCoordinator.play()
         case .native:
             isPlaying ? nativeModel.pause() : nativeModel.play()
+        }
+    }
+
+    /// Silences the deck without unloading it, e.g. while a search preview plays.
+    private func pauseDeck() {
+        embeddedAdvanceTask?.cancel()
+        switch activeEngine {
+        case .embedded: webCoordinator.pause()
+        case .native: nativeModel.pause()
         }
     }
 

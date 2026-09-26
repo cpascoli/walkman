@@ -9,12 +9,14 @@ struct SettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var isConfirmingErase = false
+    @State private var lastFMKey = LastFMCredentials.storedKey
 
     var body: some View {
         NavigationStack {
             Form {
                 playbackSection
                 engineSection
+                lastFMSection
                 storageSection
             }
             .scrollContentBackground(.hidden)
@@ -71,6 +73,22 @@ struct SettingsView: View {
             if engine == .native {
                 Text("If YouTube changes its API and local extraction breaks, fall back to YouTubeKit's remote extractor. Costs a round trip.")
             }
+        }
+        .listRowBackground(Theme.surface)
+    }
+
+    private var lastFMSection: some View {
+        Section {
+            TextField("API key", text: $lastFMKey)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .font(.system(size: 13, design: .monospaced))
+                .onChange(of: lastFMKey) { _, key in LastFMCredentials.save(key) }
+                .accessibilityIdentifier("lastFMKeyField")
+        } header: {
+            Text("Last.fm").legendStyle()
+        } footer: {
+            Text("Used to make tapes of similar tracks from a search result. Get a key by creating an API account at last.fm/api. Only the key is needed, not the shared secret. It's kept in the Keychain.")
         }
         .listRowBackground(Theme.surface)
     }

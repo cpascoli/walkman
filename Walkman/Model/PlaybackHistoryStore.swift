@@ -48,6 +48,27 @@ final class PlaybackHistoryStore: ObservableObject {
         save()
     }
 
+    func contains(_ videoID: String) -> Bool {
+        entries.contains { $0.id == videoID }
+    }
+
+    /// Files a video into the catalogue without playing it — from search, say.
+    /// It goes in at the top with no plays; an existing entry is left where it is.
+    func add(videoID: String, title: String, thumbnailURL: URL? = nil) {
+        guard !contains(videoID) else {
+            // Only lends a title to an entry that has nothing better than its ID.
+            if entries.first(where: { $0.id == videoID })?.title == videoID {
+                updateDetails(videoID: videoID, title: title, thumbnailURL: nil)
+            }
+            return
+        }
+        entries.insert(
+            HistoryEntry(id: videoID, title: title, thumbnailURL: thumbnailURL, playCount: 0),
+            at: 0
+        )
+        save()
+    }
+
     /// Fills in details that arrive after playback starts, without counting a new play.
     func updateDetails(videoID: String, title: String?, thumbnailURL: URL?) {
         guard let index = entries.firstIndex(where: { $0.id == videoID }) else { return }

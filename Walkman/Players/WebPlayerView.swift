@@ -67,8 +67,12 @@ struct YouTubePlayerView: UIViewRepresentable {
         // Reload only when the video actually changes; SwiftUI may call this often.
         guard coordinator.loadedVideoID != videoId else { return }
         coordinator.loadedVideoID = videoId
-        webView.loadHTMLString(html(for: videoId), baseURL: URL(string: "https://www.youtube.com"))
+        webView.loadHTMLString(html(for: videoId), baseURL: Self.origin)
     }
+
+    /// The page's own origin. YouTube refuses to play (error 152) for an embed
+    /// claiming to be youtube.com itself, or one with no origin at all.
+    private static let origin = URL(string: "https://com.carlopascoli.walkman")!
 
     static func dismantleUIView(_ webView: WKWebView, coordinator: Void) {
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "playerState")
@@ -105,6 +109,7 @@ struct YouTubePlayerView: UIViewRepresentable {
                             'autoplay': 1,
                             'controls': 1,
                             'rel': 0,
+                            'origin': '\(Self.origin.absoluteString)',
                             'modestbranding': 1
                         },
                         events: {

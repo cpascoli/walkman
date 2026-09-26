@@ -10,6 +10,10 @@ play it, record it to the device, and file it onto your own tapes.
 - **Paste and play.** Accepts a bare video ID or any YouTube URL shape —
   `watch?v=`, `youtu.be`, `/shorts/`, `/embed/`, `/live/`, `youtube-nocookie`,
   with or without a scheme.
+- **A cassette in the deck.** While a video plays, the window shows the tape
+  instead of the picture: the video's artwork printed on the label, the title
+  in marker, and the hubs turning as the tape winds from one pack to the other.
+  A key under the window flips to the picture when you want to watch.
 - **Plays in the background.** Audio keeps going when the app is backgrounded
   or the screen locks, with transport controls on the lock screen and in
   Control Center, plus Picture in Picture.
@@ -18,6 +22,14 @@ play it, record it to the device, and file it onto your own tapes.
 - **Tapes.** Named, ordered playlists. Reorder them, and play straight through
   with a two-second gap between tracks, wrapping at the end like a tape side.
 - **A searchable catalogue** of everything you've played, with artwork.
+- **Search YouTube** from the deck. Results show artwork, title, channel and
+  the description snippet; open one to preview it — streamed natively at around
+  480p so it starts quickly — then file it into All Recordings or onto any of
+  your tapes without playing it.
+- **Tapes of similar tracks.** From a search result, Last.fm names the song and
+  suggests 20 like it; each is found on YouTube and laid out as a draft tape to
+  prune, reorder, preview and save. Needs a free Last.fm API key, entered in
+  Settings.
 
 ## How it works
 
@@ -32,6 +44,12 @@ video-only and audio-only files. So for 480p–1080p the resolver loads both
 tracks into an `AVMutableComposition`, which `AVPlayer` then streams as if it
 were a single asset. Livestreams fall back to the HLS manifest, which `AVPlayer`
 handles natively.
+
+Building that composition is slow at high resolutions: AVFoundation reads
+through much of the video file before it will play, so 1080p can take over ten
+seconds. To start right away, the deck first plays the 360p pair, which is
+ready in about a second, and switches to the full quality at the same position
+once it's built.
 
 ### Background playback
 
@@ -248,6 +266,14 @@ library. The UI tests are end-to-end against live YouTube — they stream a
 video, record it, file it onto a tape, and check that continuous play advances
 on its own. That makes them slower and occasionally flaky, which is the trade
 for catching extraction breaking.
+
+The similar-tapes test also calls Last.fm, so it needs an API key. It's
+skipped unless you pass one:
+
+```sh
+TEST_RUNNER_LASTFM_API_KEY=your-key xcodebuild test -project Walkman.xcodeproj \
+  -scheme Walkman -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
 
 ## Regenerating the demo
 

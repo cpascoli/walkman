@@ -5,12 +5,19 @@ struct NativePlayerView: View {
 
     @ObservedObject var model: NativePlayerModel
     @ObservedObject var downloads: DownloadManager
+    /// Shown in place of the picture. Without a video layer attached there's
+    /// nothing to decode, and the audio plays on regardless.
+    var cassette: CassetteView?
 
     var body: some View {
         VStack(spacing: 12) {
             ZStack {
-                Color.black
-                VideoSurface(player: model.player)
+                if let cassette {
+                    CassetteBay { cassette }
+                } else {
+                    Color.black
+                    VideoSurface(player: model.player)
+                }
 
                 switch model.state {
                 case .loading:
@@ -25,7 +32,7 @@ struct NativePlayerView: View {
                     EmptyView()
                 }
             }
-            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            .aspectRatio(cassette == nil ? 16.0 / 9.0 : nil, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 4))
 
             if model.state == .ready {
@@ -53,7 +60,8 @@ struct NativePlayerView: View {
     @ViewBuilder
     private var details: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if let title = model.title {
+            // The cassette label already carries the title.
+            if cassette == nil, let title = model.title {
                 Text(title)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.primaryText)
@@ -78,6 +86,14 @@ struct NativePlayerView: View {
                     }
                     .pickerStyle(.menu)
                     .tint(Theme.primaryText)
+
+                    if model.isUpgradingQuality {
+                        // Playing a quick low-quality stream until this one is ready.
+                        ProgressView()
+                            .controlSize(.mini)
+                            .tint(Theme.secondaryText)
+                            .accessibilityIdentifier("upgradingQuality")
+                    }
                 } else if let only = model.qualities.first {
                     Text(only.label)
                         .font(.caption)

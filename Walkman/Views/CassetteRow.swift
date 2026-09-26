@@ -78,6 +78,8 @@ struct CassetteRow: View {
     }
 
     private var subtitle: String {
+        // Filed from search and never played.
+        guard entry.playCount > 0 else { return "Not played yet" }
         let relative = entry.lastPlayedAt.formatted(.relative(presentation: .named))
         return entry.playCount > 1 ? "\(relative) · \(entry.playCount) plays" : relative
     }

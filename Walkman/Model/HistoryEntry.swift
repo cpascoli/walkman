@@ -7,7 +7,9 @@ struct HistoryEntry: Identifiable, Codable, Hashable {
     let id: String
     var title: String
     var thumbnailURL: URL?
+    /// When it was last played — or filed, for an entry that has never been played.
     var lastPlayedAt: Date
+    /// Zero for an entry filed from search and not yet played.
     var playCount: Int
 
     init(id: String, title: String, thumbnailURL: URL? = nil, lastPlayedAt: Date = .now, playCount: Int = 1) {
