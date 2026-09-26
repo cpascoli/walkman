@@ -10,6 +10,9 @@ play it, record it to the device, and file it onto your own tapes.
 - **Paste and play.** Accepts a bare video ID or any YouTube URL shape —
   `watch?v=`, `youtu.be`, `/shorts/`, `/embed/`, `/live/`, `youtube-nocookie`,
   with or without a scheme.
+- **Four tabs:** Player, Search, Library and Settings. The deck keeps playing
+  whichever tab you're on, and playing something from the Library takes you
+  back to it.
 - **A cassette in the deck.** While a video plays, the window shows the tape
   instead of the picture: the video's artwork printed on the label, the title
   in marker, and the hubs turning as the tape winds from one pack to the other.
@@ -22,7 +25,7 @@ play it, record it to the device, and file it onto your own tapes.
 - **Tapes.** Named, ordered playlists. Reorder them, and play straight through
   with a two-second gap between tracks, wrapping at the end like a tape side.
 - **A searchable catalogue** of everything you've played, with artwork.
-- **Search YouTube** from the deck. Results show artwork, title, channel and
+- **Search YouTube** from its own tab. Results show artwork, title, channel and
   the description snippet; open one to preview it — streamed natively at around
   480p so it starts quickly — then file it into All Recordings or onto any of
   your tapes without playing it.
@@ -267,6 +270,10 @@ video, record it, file it onto a tape, and check that continuous play advances
 on its own. That makes them slower and occasionally flaky, which is the trade
 for catching extraction breaking.
 
+How well the app recognises which song a video is — the step that seeds a tape
+of similar tracks — is measured separately against 65 hand-labelled videos; see
+[Tools/SongIDEval](Tools/SongIDEval/README.md).
+
 The similar-tapes test also calls Last.fm, so it needs an API key. It's
 skipped unless you pass one:
 
@@ -279,14 +286,17 @@ TEST_RUNNER_LASTFM_API_KEY=your-key xcodebuild test -project Walkman.xcodeproj \
 
 Run this **by hand**, and only when a change is worth showing — it is
 deliberately not part of the build or test flow. Each recording commits a fresh
-~3.5 MB binary, and the GIF stays accurate across most changes, so re-recording
+~4.5 MB binary, and the GIF stays accurate across most changes, so re-recording
 routinely just grows the history for nothing.
 
 ```sh
-Tools/record-demo.sh                          # defaults
-SPEEDUP=2.5 FPS=8 WIDTH=280 KEEP_CAPTURE=1 \
+LASTFM_API_KEY=… Tools/record-demo.sh         # defaults
+SPEEDUP=2.5 FPS=6 WIDTH=280 KEEP_CAPTURE=1 \
   Tools/record-demo.sh                        # retune without re-recording
 ```
+
+Without `LASTFM_API_KEY` the walkthrough leaves out making a tape of similar
+tracks. The simulator's boot and home screen are trimmed from both ends.
 
 Drives the app through `DemoWalkthrough` while recording the simulator, then
 builds `Docs/demo.gif`. `KEEP_CAPTURE=1` keeps the `.mov` so the encoding can be

@@ -39,7 +39,7 @@ final class PlaybackFlowUITests: XCTestCase {
         )
 
         // 3. The video shows up in history, and survives the Local filter.
-        app.buttons["libraryButton"].tap()
+        app.buttons["tab.Library"].tap()
 
         // The downloaded recording should be filed under Taped.
         app.buttons["tapedRow"].tap()
@@ -109,7 +109,7 @@ final class PlaybackFlowUITests: XCTestCase {
             "Seed recording should resolve"
         )
 
-        app.buttons["libraryButton"].tap()
+        app.buttons["tab.Library"].tap()
 
         // Create a tape, accepting the pre-filled name.
         app.buttons["newTapeButton"].tap()
@@ -165,11 +165,11 @@ final class PlaybackFlowUITests: XCTestCase {
         )
 
         // Switch the preference to the embedded player.
-        app.buttons["settingsButton"].tap()
+        app.buttons["tab.Settings"].tap()
         let embedded = app.segmentedControls.buttons["Embedded"]
         XCTAssertTrue(embedded.waitForExistence(timeout: 5))
         embedded.tap()
-        app.buttons["Done"].tap()
+        app.buttons["tab.Player"].tap()
 
         // It should still be the native player on screen, playing the local file.
         XCTAssertTrue(

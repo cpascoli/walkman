@@ -17,7 +17,7 @@ final class SearchFlowUITests: XCTestCase {
     }
 
     func testSearchThenFileOntoANewTape() {
-        app.buttons["searchButton"].tap()
+        app.buttons["tab.Search"].tap()
 
         let field = app.searchFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 10))
@@ -45,13 +45,8 @@ final class SearchFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["tapeToggle_Zoo"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["addToRecordingsButton"].isEnabled, "Filing onto a tape should file the recording")
 
-        // Back out to the deck and check the library.
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(row.waitForExistence(timeout: 5))
-        // The search field is still active, and its Cancel stands in for Done.
-        app.navigationBars.buttons["Cancel"].tap()
-        app.buttons["Done"].tap()
-        app.buttons["libraryButton"].tap()
+        // Over to the library to check it's there.
+        app.buttons["tab.Library"].tap()
 
         app.buttons["tapeRow_Zoo"].tap()
         XCTAssertTrue(app.buttons["trackRow_\(videoID)"].waitForExistence(timeout: 5), "The tape should hold the result")

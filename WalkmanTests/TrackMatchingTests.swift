@@ -110,6 +110,6 @@ final class TrackMatchingTests: XCTestCase {
         } } }
         """#.utf8)) as! [String: Any]
 
-        XCTAssertEqual(LastFM.parseSearch(json), [LastFMTrack(artist: "Rick Astley", name: "Never Gonna Give You Up")])
+        XCTAssertEqual(LastFM.parseSearch(json), [LastFMTrack(artist: "Rick Astley", name: "Never Gonna Give You Up", listeners: 1459197)])
     }
 }

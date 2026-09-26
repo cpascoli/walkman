@@ -6,14 +6,15 @@
 #
 # Env overrides:
 #   SPEEDUP=2.5      playback rate of the finished GIF
-#   FPS=8            frames per second in the GIF
+#   FPS=6            frames per second in the GIF
 #   WIDTH=280        GIF width in pixels
 #   KEEP_CAPTURE=1   keep the .mov so it can be re-encoded without re-recording
+#   LASTFM_API_KEY=… include making a tape of similar tracks (skipped without)
 set -euo pipefail
 
 SIM="${1:-iPhone 17 Pro}"
 SPEEDUP="${SPEEDUP:-2.5}"
-FPS="${FPS:-8}"
+FPS="${FPS:-6}"
 WIDTH="${WIDTH:-280}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
@@ -34,6 +35,7 @@ echo "Recording…"
 xcrun simctl io "$DEVICE" recordVideo --codec h264 -f "$WORK/demo.mov" &
 REC=$!
 sleep 2
+TEST_RUNNER_LASTFM_API_KEY="${LASTFM_API_KEY:-}" \
 xcodebuild test-without-building -project "$ROOT/Walkman.xcodeproj" -scheme Walkman-Demo \
   -destination "id=$DEVICE" -only-testing:WalkmanUITests/DemoWalkthrough \
   | grep -E "Test Case .*(passed|failed)" || true
@@ -43,6 +45,6 @@ sleep 4
 
 echo "Encoding…"
 swift "$ROOT/Tools/extract-frames.swift" "$WORK/demo.mov" "$WORK/frames" "$FPS" "$SPEEDUP" "$WIDTH"
-python3 "$ROOT/Tools/build-gif.py" "$WORK/frames" "$ROOT/Docs/demo.gif"
+python3 "$ROOT/Tools/build-gif.py" "$WORK/frames" "$ROOT/Docs/demo.gif" "$FPS"
 echo "Wrote Docs/demo.gif"
 [ "${KEEP_CAPTURE:-0}" = "1" ] && echo "Capture kept at $WORK/demo.mov"

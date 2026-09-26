@@ -8,7 +8,6 @@ struct LibraryView: View {
     @ObservedObject var downloads: DownloadManager
     let onSelect: (PlaybackRequest) -> Void
 
-    @Environment(\.dismiss) private var dismiss
     @State private var isNamingTape = false
     @State private var newTapeName = ""
 
@@ -30,9 +29,6 @@ struct LibraryView: View {
             .toolbarBackground(Theme.surface, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
-                }
                 ToolbarItem(placement: .primaryAction) {
                     Button("New Tape", systemImage: "plus") { beginNamingTape() }
                         .accessibilityIdentifier("newTapeButton")
@@ -154,7 +150,6 @@ struct LibraryView: View {
 
     private func select(_ request: PlaybackRequest) {
         onSelect(request)
-        dismiss()
     }
 }
 

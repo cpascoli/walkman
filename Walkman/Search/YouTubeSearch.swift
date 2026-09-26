@@ -16,6 +16,17 @@ struct SearchResult: Identifiable, Hashable {
     let thumbnailURL: URL?
 }
 
+/// The song credited in a video's "Music" section, for licensed music.
+///
+/// It names what plays *in* the video, which isn't always what the video is:
+/// a tutorial credits its background track, a DJ set one of the tracks it
+/// plays. Callers check it against the title before trusting it.
+struct MusicCredit: Equatable {
+    let song: String
+    let artist: String
+    let album: String?
+}
+
 /// One page of results, plus the token that fetches the next.
 struct SearchPage {
     let results: [SearchResult]
@@ -42,7 +53,7 @@ struct YouTubeSearch {
         }
     }
 
-    private static let endpoint = URL(string: "https://www.youtube.com/youtubei/v1/search?prettyPrint=false")!
+    private static let base = URL(string: "https://www.youtube.com/youtubei/v1/")!
     private static let clientVersion = "2.20250101.00.00"
     /// The "Type: Video" filter, so channels, playlists and shelves stay out.
     private static let videosOnly = "EgIQAQ%3D%3D"
@@ -50,26 +61,34 @@ struct YouTubeSearch {
     var session: URLSession = .shared
 
     func search(_ query: String) async throws -> SearchPage {
-        try await request(["query": query, "params": Self.videosOnly])
+        try Self.parse(await post("search", ["query": query, "params": Self.videosOnly]))
     }
 
     func more(after continuation: String) async throws -> SearchPage {
-        try await request(["continuation": continuation])
+        try Self.parse(await post("search", ["continuation": continuation]))
     }
 
-    private func request(_ body: [String: Any]) async throws -> SearchPage {
+    /// The song YouTube credits in the video's "Music" section, if it has one.
+    func musicCredit(for videoID: String) async throws -> MusicCredit? {
+        // Asked for in English: the section is found by its "Music" heading.
+        try Self.parseMusicCredit(await post("next", ["videoId": videoID], language: "en"))
+    }
+
+    private func post(_ endpoint: String, _ body: [String: Any], language: String? = nil) async throws -> Data {
         let locale = Locale.current
         var payload = body
         payload["context"] = [
             "client": [
                 "clientName": "WEB",
                 "clientVersion": Self.clientVersion,
-                "hl": locale.language.languageCode?.identifier ?? "en",
+                "hl": language ?? locale.language.languageCode?.identifier ?? "en",
                 "gl": locale.region?.identifier ?? "US"
             ]
         ]
 
-        var request = URLRequest(url: Self.endpoint)
+        var components = URLComponents(url: Self.base.appendingPathComponent(endpoint), resolvingAgainstBaseURL: false)!
+        components.queryItems = [URLQueryItem(name: "prettyPrint", value: "false")]
+        var request = URLRequest(url: components.url!)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: payload)
@@ -78,7 +97,7 @@ struct YouTubeSearch {
         if let status = (response as? HTTPURLResponse)?.statusCode, !(200..<300).contains(status) {
             throw SearchError.badResponse(status)
         }
-        return try Self.parse(data)
+        return data
     }
 
     // MARK: - Parsing
@@ -102,6 +121,29 @@ struct YouTubeSearch {
             }
         }
         return SearchPage(results: results, continuation: continuation)
+    }
+
+    /// The first card under a "Music" heading in the watch page's description.
+    static func parseMusicCredit(_ data: Data) throws -> MusicCredit? {
+        let json = try JSONSerialization.jsonObject(with: data)
+        var credit: MusicCredit?
+
+        walk(json) { key, value in
+            guard credit == nil, key == "horizontalCardListRenderer" else { return }
+            let header = (value["header"] as? [String: Any])?["richListHeaderRenderer"] as? [String: Any]
+            guard text(header?["title"]) == "Music",
+                  let cards = value["cards"] as? [[String: Any]] else { return }
+
+            for card in cards {
+                guard let model = card["videoAttributeViewModel"] as? [String: Any],
+                      let song = model["title"] as? String, !song.isEmpty,
+                      let artist = model["subtitle"] as? String, !artist.isEmpty else { continue }
+                let album = (model["secondarySubtitle"] as? [String: Any])?["content"] as? String
+                credit = MusicCredit(song: song, artist: artist, album: album?.isEmpty == false ? album : nil)
+                return
+            }
+        }
+        return credit
     }
 
     /// Visits every keyed object in the tree. Doesn't descend into a video

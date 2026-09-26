@@ -8,7 +8,6 @@ struct SearchView: View {
     /// Called when a preview starts playing, so the deck can fall silent.
     let onPreviewStart: () -> Void
 
-    @Environment(\.dismiss) private var dismiss
     @StateObject private var model = SearchModel()
     @State private var pendingTapeResult: SearchResult?
     @State private var newTapeName = ""
@@ -21,11 +20,6 @@ struct SearchView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarBackground(Theme.surface, for: .navigationBar)
                 .toolbarBackground(.visible, for: .navigationBar)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Done") { dismiss() }
-                    }
-                }
                 .searchable(
                     text: $model.query,
                     placement: .navigationBarDrawer(displayMode: .always),

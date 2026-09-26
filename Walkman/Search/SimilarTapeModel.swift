@@ -88,13 +88,16 @@ final class SimilarTapeModel: ObservableObject {
     }
 
     private enum GenerationError: LocalizedError {
+        case notASingleSong
         case unknownSong(String)
         case nothingSimilar(LastFMTrack)
 
         var errorDescription: String? {
             switch self {
+            case .notASingleSong:
+                "This looks like a set, a concert or a stream rather than a single song, so there's no one song to match."
             case .unknownSong(let title):
-                "Last.fm doesn't recognise “\(title)” as a song."
+                "Couldn't work out which song “\(title)” is."
             case .nothingSimilar(let track):
                 "Last.fm has no similar tracks for \(track.artist) — \(track.name)."
             }
@@ -173,13 +176,29 @@ final class SimilarTapeModel: ObservableObject {
         with lastFM: LastFM,
         report: @escaping @MainActor (Event) -> Void
     ) async throws {
-        guard let seed = try await identify(original, with: lastFM) else {
-            throw GenerationError.unknownSong(original.title)
+        // The credit is a bonus; without it the title still gets a reading.
+        let credit = try? await YouTubeSearch().musicCredit(for: original.id)
+        let outcome = try await SongIdentifier.identify(original, credit: credit) { track, artist in
+            try await lastFM.searchTracks(track, artist: artist, limit: 5)
+        }
+
+        var seed: LastFMTrack
+        switch outcome {
+        case .song(let track): seed = track
+        case .notASingleSong: throw GenerationError.notASingleSong
+        case .unknown: throw GenerationError.unknownSong(original.title)
         }
         try Task.checkCancellation()
         await report(.identified(seed))
 
-        let similar = try await lastFM.similarTracks(to: seed, limit: trackCount)
+        var similar = try await lastFM.similarTracks(to: seed, limit: trackCount)
+        if similar.isEmpty, let better = try await bestKnownVersion(of: seed, with: lastFM) {
+            // A cover or a small upload may have no listening data of its own,
+            // but the song's best-known version usually does.
+            seed = better
+            await report(.identified(seed))
+            similar = try await lastFM.similarTracks(to: seed, limit: trackCount)
+        }
         guard !similar.isEmpty else { throw GenerationError.nothingSimilar(seed) }
         try Task.checkCancellation()
         await report(.similar(similar))
@@ -207,19 +226,16 @@ final class SimilarTapeModel: ObservableObject {
         }
     }
 
-    /// What song the video is, per Last.fm: as the title reads, then on the
-    /// title alone in case the artist guess was wrong.
-    private static func identify(_ video: SearchResult, with lastFM: LastFM) async throws -> LastFMTrack? {
-        let guess = TrackMatching.guess(title: video.title, channel: video.channel)
-
-        var attempts: [String?] = [guess.artist]
-        if guess.artist != nil { attempts.append(nil) }
-
-        for artist in attempts {
-            if let found = try await lastFM.searchTracks(guess.track, artist: artist, limit: 1).first {
-                return found
+    /// The most-listened track of the same name by someone else — the
+    /// original, when the seed is a cover.
+    private static func bestKnownVersion(of seed: LastFMTrack, with lastFM: LastFM) async throws -> LastFMTrack? {
+        let name = TrackMatching.normalized(TrackMatching.bareTrack(seed.name, dropSubtitles: true))
+        return try await lastFM.searchTracks(TrackMatching.bareTrack(seed.name, dropSubtitles: true), limit: 10)
+            .filter {
+                TrackMatching.normalized(TrackMatching.bareTrack($0.name, dropSubtitles: true)) == name
+                    && TrackMatching.normalized($0.artist) != TrackMatching.normalized(seed.artist)
+                    && !TrackMatching.looksLikeVideoTitle($0.name, searchedFor: seed.name)
             }
-        }
-        return nil
+            .max { ($0.listeners ?? 0) < ($1.listeners ?? 0) }
     }
 }

@@ -35,7 +35,7 @@ struct WalkmanApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(history: history, nativeModel: nativeModel, downloads: downloads, queue: queue, library: library)
+            RootView(history: history, nativeModel: nativeModel, downloads: downloads, queue: queue, library: library)
         }
     }
 }

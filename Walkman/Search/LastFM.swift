@@ -9,6 +9,9 @@ struct LastFMTrack: Hashable {
     var match: Double?
     /// Seconds, when Last.fm knows it — handy for telling the song from a mix.
     var duration: TimeInterval?
+    /// How many people have scrobbled it. Search results only. Real tracks
+    /// have plenty; scrobbled YouTube titles that aren't songs have few.
+    var listeners: Int?
 }
 
 /// The two Last.fm calls the app needs. Both are read-only, so they want only
@@ -79,7 +82,7 @@ struct LastFM {
         return list(matches?["track"]).compactMap { track in
             guard let name = track["name"] as? String,
                   let artist = track["artist"] as? String else { return nil }
-            return LastFMTrack(artist: artist, name: name)
+            return LastFMTrack(artist: artist, name: name, listeners: number(track["listeners"]).map { Int($0) })
         }
     }
 

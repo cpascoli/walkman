@@ -1,7 +1,7 @@
 import Foundation
 
 /// What to play, and the running order it belongs to.
-struct PlaybackRequest {
+struct PlaybackRequest: Equatable {
     let videoID: String
     /// The full running order this video sits in — a tape's tracks, or the
     /// whole catalogue when playing from All Recordings.

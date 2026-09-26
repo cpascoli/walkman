@@ -7,7 +7,6 @@ struct SettingsView: View {
     @ObservedObject var downloads: DownloadManager
     @Binding var engine: PlaybackEngine
 
-    @Environment(\.dismiss) private var dismiss
     @State private var isConfirmingErase = false
     @State private var lastFMKey = LastFMCredentials.storedKey
 
@@ -25,11 +24,6 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Theme.surface, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
-            }
         }
         .tint(Theme.accent)
         .preferredColorScheme(.dark)

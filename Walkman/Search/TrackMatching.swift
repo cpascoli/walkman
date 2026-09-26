@@ -39,11 +39,7 @@ enum TrackMatching {
             }
         }
 
-        // "Song | Channel Name" and the like.
-        if let bar = cleaned.firstIndex(of: "|") {
-            cleaned = String(cleaned[..<bar])
-        }
-        cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines.union(.init(charactersIn: "-–—")))
+        cleaned = cutAtBar(cleaned)
 
         for separator in [" - ", " – ", " — "] {
             if let range = cleaned.range(of: separator) {
@@ -69,6 +65,101 @@ enum TrackMatching {
             return String(trimmed.dropLast(4))
         }
         return nil
+    }
+
+    /// Drops "| Channel Name" and the like — but only a bar outside brackets,
+    /// so "(TikTok Remix | Sped Up)" goes whole rather than being cut in half.
+    private static func cutAtBar(_ text: String) -> String {
+        var depth = 0
+        for index in text.indices {
+            switch text[index] {
+            case "(", "[", "【", "「": depth += 1
+            case ")", "]", "】", "」": depth = max(0, depth - 1)
+            case "|" where depth == 0:
+                return trimmed(String(text[..<index]))
+            default: break
+            }
+        }
+        return trimmed(text)
+    }
+
+    private static func trimmed(_ text: String) -> String {
+        text.trimmingCharacters(in: .whitespacesAndNewlines.union(.init(charactersIn: "-–—")))
+    }
+
+    /// The song on its own, for asking Last.fm: every bracketed aside dropped
+    /// except a featured artist. With `dropSubtitles`, featured artists and
+    /// " - Sequentia - Lacrimosa"-style tails go too — for YouTube's credits,
+    /// which pile on edition details ("Get Lucky (Radio Edit - feat. …)").
+    static func bareTrack(_ text: String, dropSubtitles: Bool = false) -> String {
+        var bare = cutAtBar(text)
+        let regex = try! NSRegularExpression(pattern: "\\s*[\\(\\[【]([^\\)\\]】]*)[\\)\\]】]")
+        for match in regex.matches(in: bare, range: NSRange(bare.startIndex..., in: bare)).reversed() {
+            guard let inner = Range(match.range(at: 1), in: bare), let whole = Range(match.range, in: bare) else { continue }
+            let aside = bare[inner].lowercased()
+            if !dropSubtitles, aside.hasPrefix("feat") || aside.hasPrefix("ft.") { continue }
+            bare.removeSubrange(whole)
+        }
+        if dropSubtitles, let dash = bare.range(of: " - ") {
+            bare = String(bare[..<dash.lowerBound])
+        }
+        return trimmed(unquoted(trimmed(bare)))
+    }
+
+    /// The first-named of several credited artists: "Calvin Harris, Rihanna",
+    /// "BTS (방탄소년단)" and "Tommee Profitt x Skylar Grey" all lead with one.
+    static func leadArtist(_ credit: String) -> String {
+        var lead = bareTrack(credit, dropSubtitles: true)
+        for separator in [", ", " & ", " x ", " X ", " feat. ", " ft. "] {
+            if let range = lead.range(of: separator) {
+                lead = String(lead[..<range.lowerBound])
+            }
+        }
+        return lead.trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Text in quotes: `Radiohead Perform "Creep" Live`, `TWICE "What is Love?" M/V`,
+    /// `YOASOBI「夜に駆ける」`. Often the song, when there's no dash to split on.
+    static func quoted(in title: String) -> String? {
+        let regex = try! NSRegularExpression(pattern: "[\"“「'‘]([^\"”」'’]{2,60})[\"”」'’]")
+        guard let match = regex.firstMatch(in: title, range: NSRange(title.startIndex..., in: title)),
+              let inner = Range(match.range(at: 1), in: title) else { return nil }
+        return String(title[inner])
+    }
+
+    /// Whether the video's title or channel names this artist.
+    static func names(_ artist: String, video: SearchResult) -> Bool {
+        overlap(of: artist, in: "\(video.title) \(video.channel)") >= 0.5
+    }
+
+    /// The share of `needle`'s words that appear in `haystack`.
+    static func overlap(of needle: String, in haystack: String) -> Double {
+        tokenOverlap(normalized(needle), in: normalized(haystack))
+    }
+
+    /// True for titles written mostly outside the Latin alphabet.
+    static func isMostlyNonLatin(_ text: String) -> Bool {
+        let letters = text.unicodeScalars.filter { CharacterSet.letters.contains($0) }
+        guard !letters.isEmpty else { return false }
+        // Basic Latin through Latin Extended-B, so accents still count as Latin.
+        let latin = letters.filter { $0.value < 0x250 }
+        return Double(latin.count) / Double(letters.count) < 0.5
+    }
+
+    /// Words that give away a Last.fm "track" as a scrobbled video title.
+    private static let videoTitleMarkers = [
+        "official", "review", "full performance", "tiny desk", "concert", "live on", "radio",
+        "boiler room", "m v", "mv", "lyrics", "lyric video", "tutorial", "compilation", "hd", "4k",
+        "remaster", "remastered", "sped up", "slowed", "reverb", "nightcore", "8d audio"
+    ]
+
+    /// Whether a Last.fm track name is really a YouTube video's title. A marker
+    /// the song itself contains doesn't count: "Radio Ga Ga" is a song.
+    static func looksLikeVideoTitle(_ name: String, searchedFor track: String) -> Bool {
+        if name.contains("|") || name.count > 60 { return true }
+        let padded = " \(normalized(name)) "
+        let own = " \(normalized(track)) "
+        return videoTitleMarkers.contains { padded.contains(" \($0) ") && !own.contains(" \($0) ") }
     }
 
     private static func unquoted(_ text: String) -> String {

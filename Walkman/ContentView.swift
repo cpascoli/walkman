@@ -2,6 +2,7 @@ import SwiftUI
 
 /// The device front panel: brand plate, tape window, transport keys, and the
 /// source controls tucked below like the switches on the side of a real deck.
+/// The Player tab.
 struct ContentView: View {
 
     @ObservedObject var history: PlaybackHistoryStore
@@ -9,19 +10,18 @@ struct ContentView: View {
     @ObservedObject var downloads: DownloadManager
     @ObservedObject var queue: PlayQueue
     @ObservedObject var library: TapeLibrary
+    /// The player the user picked in Settings.
+    @Binding var engine: PlaybackEngine
+    /// Requests from the other tabs; handled, then cleared.
+    @Binding var command: DeckCommand?
 
     @State private var videoInput: String = ""
     @State private var embeddedVideoID: String?
-    /// The player the user picked in Settings.
-    @State private var engine: PlaybackEngine = .native
     /// The player actually driving playback. A recording with a local copy is
     /// always handed to the native player, whatever the setting says, so it
     /// keeps going in the background.
     @State private var activeEngine: PlaybackEngine = .native
     @State private var errorMessage: String?
-    @State private var isShowingLibrary = false
-    @State private var isShowingSettings = false
-    @State private var isShowingSearch = false
     /// Shows the picture instead of the cassette.
     @AppStorage("showsVideo") private var showsVideo = false
 
@@ -54,17 +54,16 @@ struct ContentView: View {
         }
         .preferredColorScheme(.dark)
         .tint(Theme.accent)
-        .sheet(isPresented: $isShowingLibrary) {
-            LibraryView(store: history, library: library, downloads: downloads) { request in
+        .onChange(of: command) { _, command in
+            guard let command else { return }
+            self.command = nil
+            switch command {
+            case .play(let request):
                 videoInput = request.videoID
                 play(request)
+            case .pause:
+                pauseDeck()
             }
-        }
-        .sheet(isPresented: $isShowingSearch) {
-            SearchView(store: history, library: library, onPreviewStart: pauseDeck)
-        }
-        .sheet(isPresented: $isShowingSettings) {
-            SettingsView(model: nativeModel, downloads: downloads, engine: $engine)
         }
         .onAppear {
             webCoordinator.onEnded = advanceEmbedded
@@ -100,26 +99,7 @@ struct ContentView: View {
             Spacer(minLength: 0)
 
             IndicatorLamp(isLit: isPlaying)
-
-            Button {
-                isShowingLibrary = true
-            } label: {
-                Image(systemName: "rectangle.stack")
-                    .font(.system(size: 15, weight: .bold))
-            }
-            .buttonStyle(DeckKeyStyle(width: 44, height: 34))
-            .accessibilityIdentifier("libraryButton")
-            .accessibilityLabel("Tape library")
-
-            Button {
-                isShowingSettings = true
-            } label: {
-                Image(systemName: "gearshape")
-                    .font(.system(size: 15, weight: .bold))
-            }
-            .buttonStyle(DeckKeyStyle(width: 44, height: 34))
-            .accessibilityIdentifier("settingsButton")
-            .accessibilityLabel("Settings")
+                .padding(.trailing, 6)
 
             CaseScrew()
         }
@@ -167,17 +147,6 @@ struct ContentView: View {
                 Button("Load", action: loadFromInput)
                     .buttonStyle(DeckKeyStyle(width: 66, height: 44, tint: Theme.accent))
                     .accessibilityIdentifier("playButton")
-
-                Button {
-                    isInputFocused = false
-                    isShowingSearch = true
-                } label: {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 15, weight: .bold))
-                }
-                .buttonStyle(DeckKeyStyle(width: 44, height: 44))
-                .accessibilityIdentifier("searchButton")
-                .accessibilityLabel("Search YouTube")
             }
 
             if let errorMessage {

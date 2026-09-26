@@ -19,7 +19,7 @@ final class SimilarTapeUITests: XCTestCase {
     }
 
     func testMakeASimilarTapeFromASearchResult() {
-        app.buttons["searchButton"].tap()
+        app.buttons["tab.Search"].tap()
         let field = app.searchFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 10))
         field.tap()
