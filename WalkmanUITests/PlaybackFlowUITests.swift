@@ -47,7 +47,20 @@ final class PlaybackFlowUITests: XCTestCase {
         let row = app.buttons["recordingRow_\(videoID)"]
         XCTAssertTrue(row.waitForExistence(timeout: 10), "Taped recording should be listed under Taped")
 
-        // 4. Selecting it plays the local file rather than streaming.
+        // 4. Its audio can be exported, from a swipe, to the share sheet.
+        row.swipeLeft()
+        let export = app.buttons["Export Audio"]
+        XCTAssertTrue(export.waitForExistence(timeout: 5))
+        export.tap()
+        let shareSheet = app.otherElements["ActivityListView"]
+        XCTAssertTrue(shareSheet.waitForExistence(timeout: 30), "Exporting should offer the file to share")
+        let fileName = shareSheet.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS[c] %@", "Me at the zoo")).firstMatch
+        XCTAssertTrue(fileName.exists, "The file should be named after the recording")
+        shareSheet.buttons["Close"].tap()
+        XCTAssertTrue(shareSheet.waitForNonExistence(timeout: 10))
+
+        // 5. Selecting it plays the local file rather than streaming.
         row.tap()
         XCTAssertTrue(
             app.descendants(matching: .any)["localPlaybackBadge"].waitForExistence(timeout: 30),
@@ -90,14 +103,16 @@ final class PlaybackFlowUITests: XCTestCase {
         ).firstMatch
         XCTAssertTrue(shortTapeTitle.waitForExistence(timeout: 90), "The short tape should be playing")
 
-        // 19s of tape + a 2s gap + metadata for the next one.
+        // 19s of tape + a 2s gap + loading the next one. Tight on purpose: when
+        // AVFoundation misread YouTube's streams at double length, the tape ran
+        // 38s, silent for the second half, and a generous wait hid it.
         let nextTapeTitle = app.staticTexts.containing(
             NSPredicate(format: "label CONTAINS[c] %@", "Never Gonna Give You Up")
         ).firstMatch
 
         XCTAssertTrue(
-            nextTapeTitle.waitForExistence(timeout: 120),
-            "Playback should roll on to the next tape in the library on its own"
+            nextTapeTitle.waitForExistence(timeout: 40),
+            "Playback should roll on to the next tape in the library on its own, at the end of the real video"
         )
     }
 

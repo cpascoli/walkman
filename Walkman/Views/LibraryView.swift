@@ -166,6 +166,7 @@ struct TapeDetailView: View {
 
     @State private var isRenaming = false
     @State private var draftName = ""
+    @StateObject private var audioExport = AudioExport()
 
     /// The live tape, so edits made here are reflected immediately.
     private var current: Tape {
@@ -207,14 +208,22 @@ struct TapeDetailView: View {
                     .listRowBackground(Theme.background)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    .swipeActions(edge: .trailing) {
+                        Button("Remove", systemImage: "minus.circle", role: .destructive) {
+                            library.remove(entry.id, from: current)
+                        }
+                        exportAudioButton(for: entry, downloads: downloads, export: audioExport)
+                    }
                 }
                 .onMove { library.moveTracks(in: current, fromOffsets: $0, toOffset: $1) }
+                // Still what Edit mode's delete buttons use.
                 .onDelete { library.removeTracks(in: current, atOffsets: $0) }
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(Theme.background)
+        .presentingAudioExport(audioExport)
         .navigationTitle(current.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Theme.surface, for: .navigationBar)
@@ -257,6 +266,7 @@ struct RecordingsListView: View {
     @State private var query = ""
     @State private var pendingTapeVideoID: String?
     @State private var newTapeName = ""
+    @StateObject private var audioExport = AudioExport()
 
     private var visible: [HistoryEntry] {
         entries.filter { $0.matches(query) }
@@ -332,12 +342,15 @@ struct RecordingsListView: View {
                         }
                         .tint(.orange)
                     }
+
+                    exportAudioButton(for: entry, downloads: downloads, export: audioExport)
                 }
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(Theme.background)
+        .presentingAudioExport(audioExport)
     }
 
     @ViewBuilder
@@ -358,5 +371,20 @@ struct RecordingsListView: View {
                 pendingTapeVideoID = entry.id
             }
         }
+    }
+}
+
+// MARK: - Exporting audio
+
+/// The swipe action that exports a recording's audio — only for recordings
+/// with a copy on the device.
+@ViewBuilder
+@MainActor
+private func exportAudioButton(for entry: HistoryEntry, downloads: DownloadManager, export: AudioExport) -> some View {
+    if let file = downloads.localURL(for: entry.id) {
+        Button("Export Audio", systemImage: "square.and.arrow.up") {
+            export.export(entry, from: file)
+        }
+        .tint(.blue)
     }
 }

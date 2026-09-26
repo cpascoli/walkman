@@ -17,6 +17,14 @@ final class SearchFlowUITests: XCTestCase {
     }
 
     func testSearchThenFileOntoANewTape() {
+        // Something playing on the deck, for the preview to interrupt.
+        let deckInput = app.textFields["videoInput"]
+        XCTAssertTrue(deckInput.waitForExistence(timeout: 10))
+        deckInput.tap()
+        deckInput.typeText("dQw4w9WgXcQ")
+        app.buttons["playButton"].tap()
+        XCTAssertTrue(app.buttons["Pause"].waitForExistence(timeout: 60), "The deck should be playing")
+
         app.buttons["tab.Search"].tap()
 
         let field = app.searchFields.firstMatch
@@ -34,6 +42,11 @@ final class SearchFlowUITests: XCTestCase {
             app.descendants(matching: .any)["previewQuality"].waitForExistence(timeout: 60),
             "The preview should resolve a stream"
         )
+
+        // The preview plays as soon as it's cued, which silences the deck.
+        app.buttons["tab.Player"].tap()
+        XCTAssertTrue(app.buttons["Play"].waitForExistence(timeout: 10), "The preview should have started and paused the deck")
+        app.buttons["tab.Search"].tap()
 
         // Putting it on a new tape files it in All Recordings too.
         app.buttons["newTapeFromSearchButton"].tap()

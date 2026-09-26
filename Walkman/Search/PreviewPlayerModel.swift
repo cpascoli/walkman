@@ -53,11 +53,14 @@ final class PreviewPlayerModel: ObservableObject {
                     throw StreamResolver.ResolverError.noPlayableStream
                 }
 
-                // Ready to play in about a second, while the preview quality is built.
+                // Playing in about a second, while the preview quality is built.
+                var startedQuick = false
                 if let quick = StreamResolver.quickStart(from: qualities, below: quality),
                    let asset = try? await StreamResolver.makeAsset(for: quick),
                    !Task.isCancelled, self.videoID == videoID {
                     player.replaceCurrentItem(with: AVPlayerItem(asset: asset))
+                    player.play()
+                    startedQuick = true
                     qualityLabel = qualities.first { $0.source == quick }?.label
                     state = .ready
                 }
@@ -70,7 +73,12 @@ final class PreviewPlayerModel: ObservableObject {
                     return
                 }
                 guard !Task.isCancelled, self.videoID == videoID else { return }
-                upgrade(to: item)
+                if startedQuick {
+                    upgrade(to: item)
+                } else {
+                    player.replaceCurrentItem(with: item)
+                    player.play()
+                }
                 qualityLabel = quality.label
                 state = .ready
             } catch is CancellationError {
@@ -83,7 +91,7 @@ final class PreviewPlayerModel: ObservableObject {
     }
 
     /// Swaps in the better item where the quick one has got to, and keeps it
-    /// playing only if it was — the user may not have pressed play yet.
+    /// playing only if it was — the user may have paused it meanwhile.
     private func upgrade(to item: AVPlayerItem) {
         let position = player.currentTime()
         let wasPlaying = player.rate != 0

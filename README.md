@@ -12,7 +12,7 @@ play it, record it to the device, and file it onto your own tapes.
   with or without a scheme.
 - **Four tabs:** Player, Search, Library and Settings. The deck keeps playing
   whichever tab you're on, and playing something from the Library takes you
-  back to it.
+  back to it. Tapping the tab you're on goes back to its first screen.
 - **A cassette in the deck.** While a video plays, the window shows the tape
   instead of the picture: the video's artwork printed on the label, the title
   in marker, and the hubs turning as the tape winds from one pack to the other.
@@ -22,6 +22,10 @@ play it, record it to the device, and file it onto your own tapes.
   Control Center, plus Picture in Picture.
 - **Records to the device.** A REC key saves a real `.mp4` you can play back
   with no network at all.
+- **Export audio.** Swipe left on a recording on the device to share its audio as
+  a tagged `.m4a` — title, artist, album and cover art. The AAC is copied as is,
+  not re-encoded. iOS doesn't let apps add files to the Music library, so to get
+  it into Apple Music, AirDrop it to a Mac and add it to the Music app there.
 - **Tapes.** Named, ordered playlists. Reorder them, and play straight through
   with a two-second gap between tracks, wrapping at the end like a tape side.
 - **A searchable catalogue** of everything you've played, with artwork.
@@ -47,6 +51,13 @@ video-only and audio-only files. So for 480p–1080p the resolver loads both
 tracks into an `AVMutableComposition`, which `AVPlayer` then streams as if it
 were a single asset. Livestreams fall back to the HLS manifest, which `AVPlayer`
 handles natively.
+
+The composition is cut to the length YouTube states in the stream URL
+(`dur=`). YouTube's streams are fragmented MP4s whose header declares the full
+length; AVFoundation counts that on top of the fragments and reports double,
+which left the second half of every video silent and black. Recordings made
+before the fix have the doubled length on their video track, so a local copy is
+played cut to its shortest track.
 
 Building that composition is slow at high resolutions: AVFoundation reads
 through much of the video file before it will play, so 1080p can take over ten

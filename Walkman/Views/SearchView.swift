@@ -7,8 +7,9 @@ struct SearchView: View {
     @ObservedObject var library: TapeLibrary
     /// Called when a preview starts playing, so the deck can fall silent.
     let onPreviewStart: () -> Void
+    /// Owned by the tab bar, so the results survive going back to the top.
+    @ObservedObject var model: SearchModel
 
-    @StateObject private var model = SearchModel()
     @State private var pendingTapeResult: SearchResult?
     @State private var newTapeName = ""
 
@@ -199,7 +200,8 @@ struct SearchResultDetailView: View {
     }
 
     /// Streams the video itself, so it plays in the app rather than in YouTube's
-    /// embed, which refuses many videos. Waits for the user to press play.
+    /// embed, which refuses many videos. Starts playing as soon as it's cued,
+    /// which pauses the deck.
     private var previewPlayer: some View {
         ZStack {
             Color.black

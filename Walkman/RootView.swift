@@ -37,6 +37,10 @@ struct RootView: View {
     @ObservedObject var library: TapeLibrary
 
     @State private var tab: Tab = .player
+    /// Bumped when a tab is tapped while showing, to take it back to its first
+    /// screen: a new identity rebuilds the tab's navigation from the top.
+    @State private var resets: [Tab: Int] = [:]
+    @StateObject private var searchModel = SearchModel()
     @State private var deckCommand: DeckCommand?
     /// The player picked in Settings.
     @State private var engine: PlaybackEngine = .native
@@ -57,9 +61,10 @@ struct RootView: View {
                     )
                 }
                 page(.search) {
-                    SearchView(store: history, library: library) {
+                    SearchView(store: history, library: library, onPreviewStart: {
                         deckCommand = .pause
-                    }
+                    }, model: searchModel)
+                    .id(resets[.search, default: 0])
                 }
                 page(.library) {
                     LibraryView(store: history, library: library, downloads: downloads) { request in
@@ -67,6 +72,7 @@ struct RootView: View {
                         // Over to the deck, to see it start.
                         tab = .player
                     }
+                    .id(resets[.library, default: 0])
                 }
                 page(.settings) {
                     SettingsView(model: nativeModel, downloads: downloads, engine: $engine)
@@ -75,7 +81,12 @@ struct RootView: View {
 
             // Out of the way while typing, as the system tab bar is.
             if !isKeyboardVisible {
-                DeckTabBar(selection: $tab)
+                DeckTabBar(selection: $tab) { reselected in
+                    // As with the system tab bar: tapping the tab you're on
+                    // goes back to its first screen. The deck has no others.
+                    guard reselected != .player else { return }
+                    resets[reselected, default: 0] += 1
+                }
             }
         }
         .background(Theme.background.ignoresSafeArea())
@@ -107,13 +118,19 @@ struct RootView: View {
 struct DeckTabBar: View {
 
     @Binding var selection: RootView.Tab
+    /// The tab that's already showing was tapped again.
+    var onReselect: (RootView.Tab) -> Void = { _ in }
 
     var body: some View {
         HStack(spacing: 0) {
             ForEach(RootView.Tab.allCases) { tab in
                 let isSelected = tab == selection
                 Button {
-                    selection = tab
+                    if tab == selection {
+                        onReselect(tab)
+                    } else {
+                        selection = tab
+                    }
                 } label: {
                     VStack(spacing: 4) {
                         // A lit strip over the current tab, like a lamp behind the legend.

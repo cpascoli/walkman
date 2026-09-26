@@ -54,12 +54,9 @@ final class DemoWalkthrough: XCTestCase {
         beat(2.5)
         row.tap()
 
-        // 4. Preview it.
+        // 4. Preview it: it starts playing as soon as it's cued.
         XCTAssertTrue(app.staticTexts["previewQuality"].waitForExistence(timeout: 60))
-        beat(1.0)
-        app.descendants(matching: .any)["searchPreview"]
-            .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        beat(4.0)
+        beat(5.0)
 
         // 5. Make a tape of similar tracks, and save it.
         if !key.isEmpty {

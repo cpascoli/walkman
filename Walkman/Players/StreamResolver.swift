@@ -20,8 +20,8 @@ enum StreamResolver {
         case hls(URL)
 
         /// The length YouTube states in the stream URL's `dur` parameter.
-        /// More trustworthy than the asset's own duration, which for some older
-        /// muxed files comes out at double the real length.
+        /// Trusted over the asset's own duration, which AVFoundation reads as
+        /// double for YouTube's fragmented MP4s (see `makeAsset`).
         var statedDuration: TimeInterval? {
             let url: URL
             switch self {
@@ -137,42 +137,82 @@ enum StreamResolver {
     }
 
     /// The playable asset behind a quality — also what the downloader exports from.
+    ///
+    /// Cut to the length YouTube states. Its DASH files are fragmented MP4s
+    /// whose header declares the whole length, and AVFoundation counts that on
+    /// top of the fragments, so it reports double: a 19 second video comes out
+    /// at 38, the second half silent and black. The fragments themselves are
+    /// timed from zero, so cutting at the stated length loses nothing.
     static func makeAsset(for source: Source) async throws -> AVAsset {
         switch source {
-        case .progressive(let url), .hls(let url):
+        case .hls(let url):
             return AVURLAsset(url: url)
+        case .progressive(let url):
+            let asset = AVURLAsset(url: url)
+            let tracks = try await asset.load(.tracks)
+            return try await composition(of: tracks, from: [asset], cutAt: source.statedDuration)
         case .adaptive(let videoURL, let audioURL):
-            return try await composition(video: videoURL, audio: audioURL)
+            let videoAsset = AVURLAsset(url: videoURL)
+            let audioAsset = AVURLAsset(url: audioURL)
+            async let videoTracks = videoAsset.loadTracks(withMediaType: .video)
+            async let audioTracks = audioAsset.loadTracks(withMediaType: .audio)
+            guard let videoTrack = try await videoTracks.first,
+                  let audioTrack = try await audioTracks.first else {
+                throw ResolverError.noPlayableStream
+            }
+            return try await composition(of: [videoTrack, audioTrack], from: [videoAsset, audioAsset],
+                                         cutAt: source.statedDuration)
         }
     }
 
-    /// Streams a video-only and an audio-only URL as one asset. Only the track
-    /// metadata is fetched up front; the media itself still streams on demand.
-    private static func composition(video videoURL: URL, audio audioURL: URL) async throws -> AVComposition {
-        let videoAsset = AVURLAsset(url: videoURL)
-        let audioAsset = AVURLAsset(url: audioURL)
+    /// A recording on the device, cut to its shortest track.
+    ///
+    /// Recordings exported before streams were cut to length kept the doubled
+    /// length on their video track, while the audio track ends where the
+    /// samples do. Healthy recordings' tracks end together, so they play as is.
+    static func makeLocalAsset(at url: URL) async throws -> AVAsset {
+        let asset = AVURLAsset(url: url)
+        async let tracks = asset.load(.tracks)
+        async let duration = asset.load(.duration)
+        let shortest = try await trackEnds(try await tracks).min() ?? .zero
+        guard try await duration.seconds - shortest.seconds > 0.5 else { return asset }
+        return try await composition(of: try await tracks, from: [asset], cutAt: nil)
+    }
 
-        async let videoTracks = videoAsset.loadTracks(withMediaType: .video)
-        async let audioTracks = audioAsset.loadTracks(withMediaType: .audio)
-        async let videoDuration = videoAsset.load(.duration)
-        async let audioDuration = audioAsset.load(.duration)
+    /// The tracks as one asset, ending with the shortest of them — or sooner,
+    /// at `length` seconds. Only the tracks' metadata is fetched up front; the
+    /// media itself still streams on demand.
+    ///
+    /// A track holds its asset only weakly, so `assets` are kept alive until
+    /// the tracks are copied: otherwise the copy fails with error -12780.
+    private static func composition(of tracks: [AVAssetTrack], from assets: [AVAsset],
+                                    cutAt length: TimeInterval?) async throws -> AVComposition {
+        let composition = try await copy(tracks, cutAt: length)
+        withExtendedLifetime(assets) {}
+        return composition
+    }
 
-        guard let videoTrack = try await videoTracks.first,
-              let audioTrack = try await audioTracks.first else {
-            throw ResolverError.noPlayableStream
+    private static func copy(_ tracks: [AVAssetTrack], cutAt length: TimeInterval?) async throws -> AVComposition {
+        var end = try await trackEnds(tracks).min() ?? .zero
+        if let length {
+            end = CMTimeMinimum(end, CMTime(seconds: length, preferredTimescale: 600))
         }
-
-        let duration = try await min(videoDuration, audioDuration)
-        let range = CMTimeRange(start: .zero, duration: duration)
+        let range = CMTimeRange(start: .zero, end: end)
 
         let composition = AVMutableComposition()
-        if let track = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) {
-            try track.insertTimeRange(range, of: videoTrack, at: .zero)
+        for track in tracks {
+            guard let copy = composition.addMutableTrack(withMediaType: track.mediaType,
+                                                         preferredTrackID: kCMPersistentTrackID_Invalid) else { continue }
+            try copy.insertTimeRange(range, of: track, at: .zero)
         }
-        if let track = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
-            try track.insertTimeRange(range, of: audioTrack, at: .zero)
-        }
-
         return composition
+    }
+
+    private static func trackEnds(_ tracks: [AVAssetTrack]) async throws -> [CMTime] {
+        var ends: [CMTime] = []
+        for track in tracks {
+            ends.append(try await track.load(.timeRange).end)
+        }
+        return ends
     }
 }

@@ -183,8 +183,14 @@ final class NativePlayerModel: ObservableObject {
             thumbnailURL = entry.thumbnailURL
         }
 
-        state = .ready
-        install(AVPlayerItem(url: url), resumeAt: .zero, shouldResume: true)
+        // Cut to its real length, in case it was recorded while streams came out doubled.
+        itemTask?.cancel()
+        itemTask = Task { [weak self] in
+            let asset = (try? await StreamResolver.makeLocalAsset(at: url)) ?? AVURLAsset(url: url)
+            guard let self, !Task.isCancelled, self.videoID == videoID else { return }
+            self.state = .ready
+            self.install(AVPlayerItem(asset: asset), resumeAt: .zero, shouldResume: true)
+        }
     }
 
     /// The source the downloader should export, i.e. whatever quality is on screen.
