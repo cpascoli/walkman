@@ -399,6 +399,18 @@ final class NativePlayerModel: ObservableObject {
         updateNowPlaying()
     }
 
+    /// Jumps along the tape, as when cueing or reviewing on a deck. Stops a
+    /// second short of the end, so winding on doesn't run into the next tape.
+    func skip(by seconds: TimeInterval) {
+        let now = player.currentTime().seconds
+        guard now.isFinite else { return }
+        var target = max(0, now + seconds)
+        if let duration, duration > 1 {
+            target = min(target, duration - 1)
+        }
+        seek(to: target)
+    }
+
     /// Clears everything except the audio-session/remote-command wiring, which is global.
     func resetPlaybackState() {
         loadTask?.cancel()

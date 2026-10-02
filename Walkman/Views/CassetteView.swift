@@ -536,6 +536,11 @@ private struct HeadAreaShape: Shape {
 
 // MARK: - Deck well
 
+extension CassetteView {
+    /// Room around the shell in its bay, a little more at the top for the hinges.
+    static let bayInsets = EdgeInsets(top: 16, leading: 12, bottom: 12, trailing: 12)
+}
+
 /// The open deck the cassette sits in: the door's hinge knuckles along the
 /// top edge and a little room around the shell.
 struct CassetteBay<Content: View>: View {
@@ -543,9 +548,7 @@ struct CassetteBay<Content: View>: View {
 
     var body: some View {
         content()
-            .padding(.horizontal, 12)
-            .padding(.top, 16)
-            .padding(.bottom, 12)
+            .padding(CassetteView.bayInsets)
             .frame(maxWidth: .infinity)
             .overlay(alignment: .top) {
                 HStack {

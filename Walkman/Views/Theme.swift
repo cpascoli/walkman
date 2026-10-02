@@ -61,12 +61,16 @@ enum Theme {
 }
 
 /// A raised plastic/metal panel with a lit top edge and a shadowed bottom edge.
+///
+/// Can be hidden rather than removed, so whatever it wraps keeps its identity —
+/// a player inside would otherwise be torn down and restarted.
 struct RaisedPanel: ViewModifier {
     var cornerRadius: CGFloat = Theme.cornerRadius
+    var isShown = true
 
     func body(content: Content) -> some View {
         content
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .background(Theme.surface.opacity(isShown ? 1 : 0), in: RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .strokeBorder(
@@ -77,18 +81,21 @@ struct RaisedPanel: ViewModifier {
                         ),
                         lineWidth: 1
                     )
+                    .opacity(isShown ? 1 : 0)
             )
-            .shadow(color: .black.opacity(0.5), radius: 4, y: 2)
+            .shadow(color: .black.opacity(isShown ? 0.5 : 0), radius: 4, y: 2)
     }
 }
 
 /// A well cut into the chassis: dark, with the shadow on the *inside* top edge.
+/// Hides like `RaisedPanel`.
 struct RecessedWell: ViewModifier {
     var cornerRadius: CGFloat = Theme.cornerRadius
+    var isShown = true
 
     func body(content: Content) -> some View {
         content
-            .background(Theme.recess, in: RoundedRectangle(cornerRadius: cornerRadius))
+            .background(Theme.recess.opacity(isShown ? 1 : 0), in: RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .strokeBorder(
@@ -99,17 +106,18 @@ struct RecessedWell: ViewModifier {
                         ),
                         lineWidth: 1
                     )
+                    .opacity(isShown ? 1 : 0)
             )
     }
 }
 
 extension View {
-    func raisedPanel(cornerRadius: CGFloat = Theme.cornerRadius) -> some View {
-        modifier(RaisedPanel(cornerRadius: cornerRadius))
+    func raisedPanel(cornerRadius: CGFloat = Theme.cornerRadius, isShown: Bool = true) -> some View {
+        modifier(RaisedPanel(cornerRadius: cornerRadius, isShown: isShown))
     }
 
-    func recessedWell(cornerRadius: CGFloat = Theme.cornerRadius) -> some View {
-        modifier(RecessedWell(cornerRadius: cornerRadius))
+    func recessedWell(cornerRadius: CGFloat = Theme.cornerRadius, isShown: Bool = true) -> some View {
+        modifier(RecessedWell(cornerRadius: cornerRadius, isShown: isShown))
     }
 
     /// Silkscreened legend text, as printed next to controls on the case.

@@ -27,6 +27,15 @@ final class PlayerCoordinator: NSObject, ObservableObject {
         evaluate("stopVideo();")
     }
 
+    /// Jumps along the video; stops short of the end, as the native player does.
+    func skip(by seconds: TimeInterval) {
+        evaluate("skipBy(\(seconds));")
+    }
+
+    func restart() {
+        evaluate("restartVideo();")
+    }
+
     private func evaluate(_ javaScript: String) {
         webView?.evaluateJavaScript(javaScript, completionHandler: nil)
     }
@@ -125,6 +134,15 @@ struct YouTubePlayerView: UIViewRepresentable {
 
                 function playVideo() { if (player && player.playVideo) { player.playVideo(); } }
                 function pauseVideo() { if (player && player.pauseVideo) { player.pauseVideo(); } }
+                function skipBy(seconds) {
+                    if (player && player.seekTo) {
+                        var target = Math.max(0, player.getCurrentTime() + seconds);
+                        var duration = player.getDuration();
+                        if (duration > 1) { target = Math.min(target, duration - 1); }
+                        player.seekTo(target, true);
+                    }
+                }
+                function restartVideo() { if (player && player.seekTo) { player.seekTo(0, true); } }
                 function stopVideo() {
                     if (player && player.stopVideo) {
                         player.stopVideo();

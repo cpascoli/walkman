@@ -8,6 +8,8 @@ struct NativePlayerView: View {
     /// Shown in place of the picture. Without a video layer attached there's
     /// nothing to decode, and the audio plays on regardless.
     var cassette: CassetteView?
+    /// The quality and download row under the picture; left out of the landscape view.
+    var showsDetails = true
 
     var body: some View {
         VStack(spacing: 12) {
@@ -15,8 +17,11 @@ struct NativePlayerView: View {
                 if let cassette {
                     CassetteBay { cassette }
                 } else {
-                    Color.black
-                    VideoSurface(player: model.player)
+                    ZStack {
+                        Color.black
+                        VideoSurface(player: model.player)
+                    }
+                    .aspectRatio(16.0 / 9.0, contentMode: .fit)
                 }
 
                 switch model.state {
@@ -32,10 +37,9 @@ struct NativePlayerView: View {
                     EmptyView()
                 }
             }
-            .aspectRatio(cassette == nil ? 16.0 / 9.0 : nil, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 4))
 
-            if model.state == .ready {
+            if showsDetails, model.state == .ready {
                 details
             }
         }

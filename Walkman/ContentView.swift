@@ -14,6 +14,9 @@ struct ContentView: View {
     @Binding var engine: PlaybackEngine
     /// Requests from the other tabs; handled, then cleared.
     @Binding var command: DeckCommand?
+    /// Turned on its side: just the tape window, filling the screen — the
+    /// cassette, or the picture when that's what's showing.
+    var isImmersive = false
 
     @State private var videoInput: String = ""
     @State private var embeddedVideoID: String?
@@ -39,18 +42,30 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            Theme.background.ignoresSafeArea()
+            background.ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 18) {
-                    facePlate
-                    loadSlot
-                    tapeWindow
-                    transportDeck
+            // Everything stays in one hierarchy in both orientations, with the
+            // rest of the deck falling away around the tape window rather than
+            // the window moving somewhere new: the players inside it would be
+            // rebuilt, and the music would stop.
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 18) {
+                        if !isImmersive {
+                            facePlate
+                            loadSlot
+                        }
+                        tapeWindow
+                        if !isImmersive {
+                            transportDeck
+                        }
+                    }
+                    .padding(isImmersive ? 0 : 16)
+                    .frame(height: isImmersive ? geometry.size.height : nil)
                 }
-                .padding(16)
+                .scrollDisabled(isImmersive)
+                .scrollDismissesKeyboard(.interactively)
             }
-            .scrollDismissesKeyboard(.interactively)
         }
         .preferredColorScheme(.dark)
         .tint(Theme.accent)
@@ -81,6 +96,12 @@ struct ContentView: View {
                 playQueued(id)
             }
         }
+    }
+
+    private var background: Color {
+        guard isImmersive else { return Theme.background }
+        // Looking into the deck at the tape, or a screen showing the picture.
+        return showsVideo && currentVideoID != nil ? .black : Theme.recess
     }
 
     // MARK: - Face plate
@@ -187,21 +208,49 @@ struct ContentView: View {
                         NativePlayerView(
                             model: nativeModel,
                             downloads: downloads,
-                            cassette: showsVideo ? nil : cassette(for: videoID)
+                            cassette: showsVideo ? nil : cassette(for: videoID),
+                            showsDetails: !isImmersive
                         )
                     } else {
                         emptyBay
                     }
                 }
             }
-            .padding(8)
-            .recessedWell(cornerRadius: 8)
+            .frame(maxWidth: .infinity, maxHeight: isImmersive ? .infinity : nil)
+            .overlay {
+                if showsDeckGestures {
+                    DeckGestures(
+                        isPlaying: isPlaying,
+                        position: activeEngine == .native ? counterReading : nil,
+                        onTogglePlayback: togglePlayback,
+                        onNextTrack: skipForward,
+                        onRestart: restartTape,
+                        onWind: wind
+                    )
+                }
+            }
+            .padding(isImmersive ? 0 : 8)
+            .recessedWell(cornerRadius: 8, isShown: !isImmersive)
 
-            tapeReadout
-            tapeDeckStrip
+            if !isImmersive {
+                tapeReadout
+                tapeDeckStrip
+            }
         }
-        .padding(10)
-        .raisedPanel(cornerRadius: 10)
+        .padding(isImmersive ? 0 : 10)
+        .raisedPanel(cornerRadius: 10, isShown: !isImmersive)
+    }
+
+    /// On its side, the cassette is the controls. Not over the picture, which
+    /// has its own, nor over a failed load, whose retry button would be covered.
+    private var showsDeckGestures: Bool {
+        guard isImmersive, !showsVideo, currentVideoID != nil else { return false }
+        if activeEngine == .native, case .failed = nativeModel.state { return false }
+        return true
+    }
+
+    private var counterReading: String {
+        Duration.seconds(nativeModel.elapsed).formatted(.time(pattern: .minuteSecond))
     }
 
     /// Which tape is loaded and where we are on it.
@@ -466,6 +515,20 @@ struct ContentView: View {
         switch activeEngine {
         case .embedded: webCoordinator.pause()
         case .native: nativeModel.pause()
+        }
+    }
+
+    private func restartTape() {
+        switch activeEngine {
+        case .embedded: webCoordinator.restart()
+        case .native: nativeModel.seek(to: 0)
+        }
+    }
+
+    private func wind(by seconds: TimeInterval) {
+        switch activeEngine {
+        case .embedded: webCoordinator.skip(by: seconds)
+        case .native: nativeModel.skip(by: seconds)
         }
     }
 

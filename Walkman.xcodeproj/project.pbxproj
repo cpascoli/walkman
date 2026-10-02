@@ -12,6 +12,7 @@
 		0B912D80C6CB10BB21F0E2E4 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E3B916A0EC42ED5614921F /* RootView.swift */; };
 		179DB70CC1EBA8363FC4F96E /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457FEC038BF03F97A51B03B3 /* SearchView.swift */; };
 		189160E71DF8070374B6831F /* NativePlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F8F5E62F23342C51FA1531F /* NativePlayerModel.swift */; };
+		19FFACEB929362F9DF90E967 /* DeckGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B83DF8ACD6AA78AC601F482 /* DeckGestures.swift */; };
 		1AE6950663BF2FAA782DDC0F /* VideoSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1422CB92572326F47980969 /* VideoSurface.swift */; };
 		1D37EF8735F9FD40BF21FBA7 /* YouTubeVideoIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC9ACA863DDD38CD35A1B37 /* YouTubeVideoIDTests.swift */; };
 		1E3DC2F02A57D7472D3DD9FD /* DownloadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ADBAF2C58AEC40DCF33C8E1 /* DownloadButton.swift */; };
@@ -38,6 +39,7 @@
 		80C45ABE9963FCEF324280AF /* PlayQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F729BD3E7AE0B19632C1CD6 /* PlayQueue.swift */; };
 		8236D4F4ED681AB2389316EF /* YouTubeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 02E7CC95ECD935658BAC0C53 /* YouTubeKit */; };
 		8A8E6C08C997E058F5A9DC9D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E982ED2E18B7C2DB7C834147 /* SettingsView.swift */; };
+		8B98E8C59BAC5A50F8705324 /* LandscapeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174588DF9781455617AD7D1F /* LandscapeUITests.swift */; };
 		8C3663328491BBFC080DA7BB /* WebPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C0899C7C2A21AA4FBD4E73C /* WebPlayerView.swift */; };
 		9453B5118768FDEF14518FFD /* CassetteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98061754B4F494A7DCAF71C /* CassetteView.swift */; };
 		9929B27CC997709BB48131B7 /* PlaybackFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7710DCC79A67CA92C16F385F /* PlaybackFlowUITests.swift */; };
@@ -80,6 +82,7 @@
 		083DF472A8B903B8E1FD3184 /* PreviewQualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewQualityTests.swift; sourceTree = "<group>"; };
 		0A2F609B880973A2B7A9B233 /* TrackMatchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackMatchingTests.swift; sourceTree = "<group>"; };
 		12653A6281347E224E9FF152 /* HistoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEntry.swift; sourceTree = "<group>"; };
+		174588DF9781455617AD7D1F /* LandscapeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandscapeUITests.swift; sourceTree = "<group>"; };
 		17E83A8AC9A79D8161493284 /* LastFM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFM.swift; sourceTree = "<group>"; };
 		185F8BD743AB81FE21083E60 /* SongIdentifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongIdentifierTests.swift; sourceTree = "<group>"; };
 		197380F370937A93B85B9F5A /* PlayQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayQueueTests.swift; sourceTree = "<group>"; };
@@ -109,6 +112,7 @@
 		8E235ED719CAF9A2F4904740 /* SimilarTapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarTapeView.swift; sourceTree = "<group>"; };
 		8F729BD3E7AE0B19632C1CD6 /* PlayQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayQueue.swift; sourceTree = "<group>"; };
 		91E53618FE0C18F710F058E7 /* SearchFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFlowUITests.swift; sourceTree = "<group>"; };
+		9B83DF8ACD6AA78AC601F482 /* DeckGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckGestures.swift; sourceTree = "<group>"; };
 		9ED98F4E22A1900BA60716FF /* Walkman.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Walkman.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A29D1314E2D8AC679C307FA2 /* NativePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePlayerView.swift; sourceTree = "<group>"; };
 		B1B7E374F27C356C5A39CBEF /* SimilarTapeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarTapeUITests.swift; sourceTree = "<group>"; };
@@ -213,6 +217,7 @@
 			isa = PBXGroup;
 			children = (
 				1B432373442224D56D81CB55 /* DemoWalkthrough.swift */,
+				174588DF9781455617AD7D1F /* LandscapeUITests.swift */,
 				7710DCC79A67CA92C16F385F /* PlaybackFlowUITests.swift */,
 				91E53618FE0C18F710F058E7 /* SearchFlowUITests.swift */,
 				B1B7E374F27C356C5A39CBEF /* SimilarTapeUITests.swift */,
@@ -226,6 +231,7 @@
 			children = (
 				7E9FB1158BA656F8C581B92F /* CassetteRow.swift */,
 				F98061754B4F494A7DCAF71C /* CassetteView.swift */,
+				9B83DF8ACD6AA78AC601F482 /* DeckGestures.swift */,
 				2ADBAF2C58AEC40DCF33C8E1 /* DownloadButton.swift */,
 				5D44375C5A44C6CB0468F960 /* LibraryView.swift */,
 				C9C39616D3DF54C57774ECDB /* RetroControls.swift */,
@@ -400,6 +406,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				04DC770234943D4BCDD842D7 /* DemoWalkthrough.swift in Sources */,
+				8B98E8C59BAC5A50F8705324 /* LandscapeUITests.swift in Sources */,
 				9929B27CC997709BB48131B7 /* PlaybackFlowUITests.swift in Sources */,
 				E1D17EC55703B57E938C00DF /* SearchFlowUITests.swift in Sources */,
 				2E62037B077317C20B150A39 /* SimilarTapeUITests.swift in Sources */,
@@ -431,6 +438,7 @@
 				7F6ECD2F638A38FF4F61E853 /* CassetteRow.swift in Sources */,
 				9453B5118768FDEF14518FFD /* CassetteView.swift in Sources */,
 				A6CE6355B50BF5588A5B9891 /* ContentView.swift in Sources */,
+				19FFACEB929362F9DF90E967 /* DeckGestures.swift in Sources */,
 				1E3DC2F02A57D7472D3DD9FD /* DownloadButton.swift in Sources */,
 				5DFF296794D1C677D10B3BFB /* DownloadManager.swift in Sources */,
 				3972A1C42CCC13591B136538 /* HistoryEntry.swift in Sources */,

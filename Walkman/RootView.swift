@@ -45,6 +45,13 @@ struct RootView: View {
     /// The player picked in Settings.
     @State private var engine: PlaybackEngine = .native
     @State private var isKeyboardVisible = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// A phone on its side, on the deck: the tape fills the screen, and the
+    /// tab bar and system chrome get out of the way.
+    private var isImmersive: Bool {
+        tab == .player && verticalSizeClass == .compact
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -57,7 +64,8 @@ struct RootView: View {
                         queue: queue,
                         library: library,
                         engine: $engine,
-                        command: $deckCommand
+                        command: $deckCommand,
+                        isImmersive: isImmersive
                     )
                 }
                 page(.search) {
@@ -80,7 +88,7 @@ struct RootView: View {
             }
 
             // Out of the way while typing, as the system tab bar is.
-            if !isKeyboardVisible {
+            if !isKeyboardVisible, !isImmersive {
                 DeckTabBar(selection: $tab) { reselected in
                     // As with the system tab bar: tapping the tab you're on
                     // goes back to its first screen. The deck has no others.
@@ -92,6 +100,8 @@ struct RootView: View {
         .background(Theme.background.ignoresSafeArea())
         .tint(Theme.accent)
         .preferredColorScheme(.dark)
+        .statusBarHidden(isImmersive)
+        .persistentSystemOverlays(isImmersive ? .hidden : .automatic)
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
             isKeyboardVisible = true
         }
