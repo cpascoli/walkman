@@ -32,8 +32,15 @@ xcodebuild -project "$ROOT/Walkman.xcodeproj" -scheme Walkman-Demo \
   -destination "id=$DEVICE" -configuration Debug build-for-testing >/dev/null
 
 echo "Recording…"
-xcrun simctl io "$DEVICE" recordVideo --codec h264 -f "$WORK/demo.mov" &
+# The walkthrough logs each turn of the device, for orient-frames.py.
+xcrun simctl spawn "$DEVICE" log stream --style compact \
+  --predicate 'eventMessage CONTAINS "DEMO-MARK"' > "$WORK/marks.log" 2>&1 &
+LOG=$!
+xcrun simctl io "$DEVICE" recordVideo --codec h264 -f "$WORK/demo.mov" 2> "$WORK/record.log" &
 REC=$!
+# When the first frame was taken, to line the marks up with the frames.
+until grep -q "Recording started" "$WORK/record.log" 2>/dev/null; do sleep 0.05; done
+START=$(python3 -c 'import time; print(time.time())')
 sleep 2
 TEST_RUNNER_LASTFM_API_KEY="${LASTFM_API_KEY:-}" \
 xcodebuild test-without-building -project "$ROOT/Walkman.xcodeproj" -scheme Walkman-Demo \
@@ -41,10 +48,12 @@ xcodebuild test-without-building -project "$ROOT/Walkman.xcodeproj" -scheme Walk
   | grep -E "Test Case .*(passed|failed)" || true
 sleep 1
 kill -INT $REC 2>/dev/null || true
+kill $LOG 2>/dev/null || true
 sleep 4
 
 echo "Encoding…"
 swift "$ROOT/Tools/extract-frames.swift" "$WORK/demo.mov" "$WORK/frames" "$FPS" "$SPEEDUP" "$WIDTH"
+python3 "$ROOT/Tools/orient-frames.py" "$WORK/frames" "$WORK/marks.log" "$START" "$FPS" "$SPEEDUP"
 python3 "$ROOT/Tools/build-gif.py" "$WORK/frames" "$ROOT/Docs/demo.gif" "$FPS"
 echo "Wrote Docs/demo.gif"
 [ "${KEEP_CAPTURE:-0}" = "1" ] && echo "Capture kept at $WORK/demo.mov"

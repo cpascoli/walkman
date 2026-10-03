@@ -306,8 +306,14 @@ SPEEDUP=2.5 FPS=6 WIDTH=280 KEEP_CAPTURE=1 \
   Tools/record-demo.sh                        # retune without re-recording
 ```
 
-Without `LASTFM_API_KEY` the walkthrough leaves out making a tape of similar
-tracks. The simulator's boot and home screen are trimmed from both ends.
+Making a tape of similar tracks needs a Last.fm key: `LASTFM_API_KEY`, or one
+saved in the simulator's Settings tab. Without one, the tape the walkthrough
+downloads is just the song it searched for. The simulator's boot and home
+screen are trimmed from both ends.
+
+The simulator records the landscape view sideways, so the walkthrough logs
+each turn of the device and `Tools/orient-frames.py` sets those frames upright,
+in an outline of the phone, dropping the ones mid-turn.
 
 Drives the app through `DemoWalkthrough` while recording the simulator, then
 builds `Docs/demo.gif`. `KEEP_CAPTURE=1` keeps the `.mov` so the encoding can be

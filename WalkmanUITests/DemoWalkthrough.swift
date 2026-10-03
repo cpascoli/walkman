@@ -8,14 +8,18 @@ import XCTest
 /// The `Walkman` scheme skips it, so it never runs with the normal suite. It
 /// runs under the `Walkman-Demo` scheme; `Tools/record-demo.sh` does the whole
 /// job, including the capture and the GIF. The similar-tape part needs a
-/// Last.fm key (`LASTFM_API_KEY` for the script) and is left out without one.
+/// Last.fm key — `LASTFM_API_KEY` for the script, or one saved in the
+/// simulator's Settings; without one the tape is just the song searched for.
+///
+/// The simulator records landscape sideways, so each turn of the device is
+/// logged with the time (`DEMO-MARK`), for the script to set those frames
+/// upright.
 final class DemoWalkthrough: XCTestCase {
 
-    /// Loaded on the deck at the start.
-    private let videoID = "KsE9iXoXB6s"
-    /// Searched for, previewed, and made into a tape of similar tracks.
-    private let searchQuery = "a-ha take on me"
-    private let searchVideoID = "djV11Xbc914"
+    /// Searched for, previewed, and made into a tape of tracks like it.
+    private let searchQuery = "Music Is Math Boards of Canada"
+    /// The band's own upload.
+    private let searchVideoID = "YSi78g2CXCM"
 
     func testRecordDemo() throws {
         let app = XCUIApplication()
@@ -26,23 +30,8 @@ final class DemoWalkthrough: XCTestCase {
 
         beat(1.5)
 
-        // 1. Paste an ID and load it: the cassette goes in and the hubs turn.
-        let field = app.textFields["videoInput"]
-        XCTAssertTrue(field.waitForExistence(timeout: 10))
-        field.tap()
-        field.typeText(videoID)
-        beat(0.6)
-        app.buttons["playButton"].tap()
-        XCTAssertTrue(app.buttons["Pause"].waitForExistence(timeout: 90))
-        beat(4.0)
-
-        // 2. A look at the picture, then back to the tape.
-        app.buttons["videoToggle"].tap()
-        beat(3.0)
-        app.buttons["videoToggle"].tap()
-        beat(1.5)
-
-        // 3. Search YouTube and open a result.
+        // 1. Search YouTube for a song and open it: the preview plays as soon
+        // as it's cued.
         app.buttons["tab.Search"].tap()
         beat(0.8)
         let search = app.searchFields.firstMatch
@@ -51,18 +40,16 @@ final class DemoWalkthrough: XCTestCase {
         search.typeText(searchQuery + "\n")
         let row = app.buttons["searchResultRow_\(searchVideoID)"]
         XCTAssertTrue(row.waitForExistence(timeout: 30))
-        beat(2.5)
+        beat(2.0)
         row.tap()
-
-        // 4. Preview it: it starts playing as soon as it's cued.
         XCTAssertTrue(app.staticTexts["previewQuality"].waitForExistence(timeout: 60))
-        beat(5.0)
+        beat(4.0)
 
-        // 5. Make a tape of similar tracks, and save it.
-        if !key.isEmpty {
-            app.buttons["similarTapeButton"].tap()
-            let progress = app.descendants(matching: .any)["similarTapeProgress"]
-            XCTAssertTrue(progress.waitForExistence(timeout: 10))
+        // 2. A tape of similar tracks, filling in as each is found on YouTube.
+        app.buttons["similarTapeButton"].tap()
+        let progress = app.descendants(matching: .any)["similarTapeProgress"]
+        let hasKey = progress.waitForExistence(timeout: 5)
+        if hasKey {
             XCTAssertTrue(progress.waitForNonExistence(timeout: 120))
             beat(1.5)
             app.swipeUp()
@@ -71,36 +58,69 @@ final class DemoWalkthrough: XCTestCase {
             beat(1.0)
             app.buttons["saveSimilarTapeButton"].tap()
             beat(1.5)
+        } else {
+            // No key: a tape of just this song, so the rest still has one to show.
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            app.buttons["newTapeFromSearchButton"].tap()
+            let name = app.alerts.textFields.firstMatch
+            XCTAssertTrue(name.waitForExistence(timeout: 5))
+            name.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 12) + "Music Is Math")
+            app.alerts.buttons["Create"].tap()
+            beat(1.0)
         }
 
-        // 6. Play from the library: it's back to the deck.
+        // 3. Open the tape and download it all to the device, one at a time.
         app.buttons["tab.Library"].tap()
-        beat(1.5)
-        let tape = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'tapeRow_'")).firstMatch
-        if tape.waitForExistence(timeout: 3) {
-            tape.tap()
-            beat(1.5)
-            app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'trackRow_'")).element(boundBy: 1).tap()
-        } else {
-            app.buttons["allRecordingsRow"].tap()
-            beat(1.2)
-            app.buttons["recordingRow_\(searchVideoID)"].tap()
+        beat(1.2)
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'tapeRow_'")).firstMatch.tap()
+        beat(2.0)
+        app.buttons["tapeMenu"].tap()
+        beat(1.0)
+        app.buttons["downloadTapeButton"].tap()
+        let status = app.descendants(matching: .any)["tapeDownloadStatus"]
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        // Watch the first come down, then leave the rest going. A tape of one
+        // is done at that point, and the progress goes.
+        let deadline = Date.now.addingTimeInterval(90)
+        while status.exists, !status.label.contains("· 1 of"), Date.now < deadline {
+            beat(0.5)
         }
+        beat(2.0)
+
+        // 4. Play from the tape: back to the deck, the cassette in and turning.
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'trackRow_'")).firstMatch.tap()
         XCTAssertTrue(app.buttons["Pause"].waitForExistence(timeout: 60))
         beat(4.0)
 
-        // 7. Transport keys.
-        // First match: the deck's key, not the player's own control.
-        app.buttons.matching(NSPredicate(format: "label == 'Pause'")).firstMatch.tap()
-        beat(1.2)
-        app.buttons.matching(NSPredicate(format: "label == 'Play'")).firstMatch.tap()
+        // 5. On its side: the cassette fills the screen. Holding the gap to
+        // its right winds on.
+        turn(to: .landscapeLeft)
+        beat(2.5)
+        let deck = app.descendants(matching: .any)["deckGestures"]
+        XCTAssertTrue(deck.waitForExistence(timeout: 5))
+        deck.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 0.5))
+            .withOffset(CGVector(dx: 40, dy: 0))
+            .press(forDuration: 2.0)
+        beat(1.5)
+        turn(to: .portrait)
         beat(1.5)
 
-        // 8. Settings, and home.
-        app.buttons["tab.Settings"].tap()
-        beat(2.2)
-        app.buttons["tab.Player"].tap()
+        // 6. The picture instead, and on its side, full screen.
+        app.buttons["videoToggle"].tap()
         beat(2.0)
+        turn(to: .landscapeLeft)
+        beat(3.5)
+        turn(to: .portrait)
+        beat(1.0)
+        app.buttons["videoToggle"].tap()
+        beat(2.0)
+    }
+
+    /// Turns the device, marking the time for the recording script.
+    private func turn(to orientation: UIDeviceOrientation) {
+        let name = orientation == .portrait ? "portrait" : "landscape"
+        NSLog("DEMO-MARK \(name) \(Date.now.timeIntervalSince1970)")
+        XCUIDevice.shared.orientation = orientation
     }
 
     /// A readable pause, so the recording isn't a blur of instant transitions.
