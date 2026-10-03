@@ -297,12 +297,12 @@ TEST_RUNNER_LASTFM_API_KEY=your-key xcodebuild test -project Walkman.xcodeproj \
 
 Run this **by hand**, and only when a change is worth showing — it is
 deliberately not part of the build or test flow. Each recording commits a fresh
-~4.5 MB binary, and the GIF stays accurate across most changes, so re-recording
+~6 MB binary, and the GIF stays accurate across most changes, so re-recording
 routinely just grows the history for nothing.
 
 ```sh
 LASTFM_API_KEY=… Tools/record-demo.sh         # defaults
-SPEEDUP=2.5 FPS=6 WIDTH=280 KEEP_CAPTURE=1 \
+SPEEDUP=2.5 FPS=6 SIZE=720 KEEP_CAPTURE=1 \
   Tools/record-demo.sh                        # retune without re-recording
 ```
 
@@ -311,9 +311,13 @@ saved in the simulator's Settings tab. Without one, the tape the walkthrough
 downloads is just the song it searched for. The simulator's boot and home
 screen are trimmed from both ends.
 
-The simulator records the landscape view sideways, so the walkthrough logs
-each turn of the device and `Tools/orient-frames.py` sets those frames upright,
-in an outline of the phone, dropping the ones mid-turn.
+`Tools/compose-frames.py` lays the GIF out: each frame as a phone centred on
+a black square, the same size whichever way up it is, with a title card at the
+start of each section. The cards' titles and copy live in `DemoWalkthrough`,
+next to the sections they introduce. The simulator records the landscape view
+sideways, so the walkthrough logs each section and each turn of the device
+with the time; the landscape frames are set upright, and the frames mid-turn
+replaced by the phone turning.
 
 Drives the app through `DemoWalkthrough` while recording the simulator, then
 builds `Docs/demo.gif`. `KEEP_CAPTURE=1` keeps the `.mov` so the encoding can be

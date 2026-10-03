@@ -11,9 +11,9 @@ import XCTest
 /// Last.fm key — `LASTFM_API_KEY` for the script, or one saved in the
 /// simulator's Settings; without one the tape is just the song searched for.
 ///
-/// The simulator records landscape sideways, so each turn of the device is
-/// logged with the time (`DEMO-MARK`), for the script to set those frames
-/// upright.
+/// Each section starts with a title card, and the simulator records landscape
+/// sideways, so the sections and each turn of the device are logged with the
+/// time (`DEMO-MARK`), for the script to lay the GIF out by.
 final class DemoWalkthrough: XCTestCase {
 
     /// Searched for, previewed, and made into a tape of tracks like it.
@@ -26,12 +26,15 @@ final class DemoWalkthrough: XCTestCase {
         app.launchArguments = ["-resetState"]
         let key = ProcessInfo.processInfo.environment["LASTFM_API_KEY"] ?? ""
         if !key.isEmpty { app.launchEnvironment["LASTFM_API_KEY"] = key }
+        section("Walkman", "A personal cassette deck for YouTube: find music, wind it onto tapes, and take it with you.")
         app.launch()
 
-        beat(1.5)
+        // The deck as it opens, long enough to register between the cards.
+        beat(4.0)
 
         // 1. Search YouTube for a song and open it: the preview plays as soon
         // as it's cued.
+        section("Search YouTube", "Find any song and preview it straight away. Here, Boards of Canada's “Music Is Math”.")
         app.buttons["tab.Search"].tap()
         beat(0.8)
         let search = app.searchFields.firstMatch
@@ -46,6 +49,7 @@ final class DemoWalkthrough: XCTestCase {
         beat(4.0)
 
         // 2. A tape of similar tracks, filling in as each is found on YouTube.
+        section("A tape of similar tracks", "Last.fm names the song and suggests twenty like it, each found on YouTube. Look it over, then save it.")
         app.buttons["similarTapeButton"].tap()
         let progress = app.descendants(matching: .any)["similarTapeProgress"]
         let hasKey = progress.waitForExistence(timeout: 5)
@@ -70,6 +74,7 @@ final class DemoWalkthrough: XCTestCase {
         }
 
         // 3. Open the tape and download it all to the device, one at a time.
+        section("Download a whole tape", "Every track is saved to the phone, one at a time, for listening offline. It carries on while you do other things.")
         app.buttons["tab.Library"].tap()
         beat(1.2)
         app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'tapeRow_'")).firstMatch.tap()
@@ -88,12 +93,14 @@ final class DemoWalkthrough: XCTestCase {
         beat(2.0)
 
         // 4. Play from the tape: back to the deck, the cassette in and turning.
+        section("Play it on the deck", "The cassette goes in, the reels turn, and the tape winds from one spool to the other as it plays.")
         app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'trackRow_'")).firstMatch.tap()
         XCTAssertTrue(app.buttons["Pause"].waitForExistence(timeout: 60))
         beat(4.0)
 
         // 5. On its side: the cassette fills the screen. Holding the gap to
         // its right winds on.
+        section("Turn it on its side", "The cassette fills the screen. Tap to play or pause, double-tap to skip, and hold either side to wind.")
         turn(to: .landscapeLeft)
         beat(2.5)
         let deck = app.descendants(matching: .any)["deckGestures"]
@@ -106,6 +113,7 @@ final class DemoWalkthrough: XCTestCase {
         beat(1.5)
 
         // 6. The picture instead, and on its side, full screen.
+        section("Or watch the video", "Switch the deck to the picture, and on its side it plays full screen.")
         app.buttons["videoToggle"].tap()
         beat(2.0)
         turn(to: .landscapeLeft)
@@ -119,8 +127,13 @@ final class DemoWalkthrough: XCTestCase {
     /// Turns the device, marking the time for the recording script.
     private func turn(to orientation: UIDeviceOrientation) {
         let name = orientation == .portrait ? "portrait" : "landscape"
-        NSLog("DEMO-MARK \(name) \(Date.now.timeIntervalSince1970)")
+        NSLog("%@", "DEMO-MARK \(name) \(Date.now.timeIntervalSince1970)")
         XCUIDevice.shared.orientation = orientation
+    }
+
+    /// Marks the start of a section, for a title card in the GIF.
+    private func section(_ title: String, _ copy: String) {
+        NSLog("%@", "DEMO-MARK section \(Date.now.timeIntervalSince1970) \(title) | \(copy)")
     }
 
     /// A readable pause, so the recording isn't a blur of instant transitions.

@@ -7,7 +7,7 @@
 # Env overrides:
 #   SPEEDUP=2.5      playback rate of the finished GIF
 #   FPS=6            frames per second in the GIF
-#   WIDTH=280        GIF width in pixels
+#   SIZE=720         the GIF's width and height, in pixels
 #   KEEP_CAPTURE=1   keep the .mov so it can be re-encoded without re-recording
 #   LASTFM_API_KEY=… include making a tape of similar tracks (skipped without)
 set -euo pipefail
@@ -15,7 +15,7 @@ set -euo pipefail
 SIM="${1:-iPhone 17 Pro}"
 SPEEDUP="${SPEEDUP:-2.5}"
 FPS="${FPS:-6}"
-WIDTH="${WIDTH:-280}"
+SIZE="${SIZE:-720}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 if [ "${KEEP_CAPTURE:-0}" != "1" ]; then
@@ -52,8 +52,12 @@ kill $LOG 2>/dev/null || true
 sleep 4
 
 echo "Encoding…"
-swift "$ROOT/Tools/extract-frames.swift" "$WORK/demo.mov" "$WORK/frames" "$FPS" "$SPEEDUP" "$WIDTH"
-python3 "$ROOT/Tools/orient-frames.py" "$WORK/frames" "$WORK/marks.log" "$START" "$FPS" "$SPEEDUP"
-python3 "$ROOT/Tools/build-gif.py" "$WORK/frames" "$ROOT/Docs/demo.gif" "$FPS"
+# Extracted at the size the phone is drawn, its long side the GIF's less margins.
+swift "$ROOT/Tools/extract-frames.swift" "$WORK/demo.mov" "$WORK/frames" "$FPS" "$SPEEDUP" \
+  $(( (SIZE - 40) * 1206 / 2622 ))
+rm -rf "$WORK/composed"
+python3 "$ROOT/Tools/compose-frames.py" "$WORK/frames" "$WORK/composed" "$WORK/marks.log" \
+  "$START" "$FPS" "$SPEEDUP" "$SIZE"
+python3 "$ROOT/Tools/build-gif.py" "$WORK/composed" "$ROOT/Docs/demo.gif" "$FPS"
 echo "Wrote Docs/demo.gif"
 [ "${KEEP_CAPTURE:-0}" = "1" ] && echo "Capture kept at $WORK/demo.mov"
