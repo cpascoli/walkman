@@ -81,7 +81,7 @@ final class SimilarTapeModel: ObservableObject {
 
     // MARK: - Generating
 
-    private enum Event {
+    enum Event {
         case identified(LastFMTrack)
         case similar([LastFMTrack])
         case searched(index: Int, result: SearchResult?)
@@ -171,7 +171,9 @@ final class SimilarTapeModel: ObservableObject {
             .map { tracks[$0] }
     }
 
-    private static func generate(
+    /// Identifies the song, asks Last.fm for similar tracks and finds each on
+    /// YouTube, reporting as it goes. Also how `TapeExtensionModel` extends a tape.
+    static func generate(
         from original: SearchResult,
         with lastFM: LastFM,
         report: @escaping @MainActor (Event) -> Void

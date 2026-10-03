@@ -58,6 +58,9 @@ final class LandscapeUITests: XCTestCase {
         let deck = app.descendants(matching: .any)["deckGestures"]
         XCTAssertTrue(deck.waitForExistence(timeout: 5))
 
+        // Under way first: a tap while it's still cueing starts it instead.
+        wait(for: deck, valueBeginsWith: "Playing", timeout: 30)
+
         // A tap pauses, so the counter holds still for what follows.
         deck.tap()
         wait(for: deck, valueBeginsWith: "Paused")
@@ -66,14 +69,14 @@ final class LandscapeUITests: XCTestCase {
         // Holding the gap to the right winds on, a few seconds a step.
         deck.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 0.5))
             .withOffset(CGVector(dx: 30, dy: 0))
-            .press(forDuration: 1.2)
+            .press(forDuration: 1.5)
         let wound = seconds(deck)
         XCTAssertGreaterThanOrEqual(wound, start + 8, "Holding the right gap should wind on")
 
         // And to the left, back.
         deck.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5))
             .withOffset(CGVector(dx: -30, dy: 0))
-            .press(forDuration: 0.8)
+            .press(forDuration: 1.5)
         XCTAssertLessThanOrEqual(seconds(deck), wound - 8, "Holding the left gap should wind back")
 
         // Three taps: back to the start.
@@ -84,9 +87,15 @@ final class LandscapeUITests: XCTestCase {
         wait(for: deck, valueBeginsWith: "Playing")
     }
 
-    private func wait(for element: XCUIElement, valueBeginsWith prefix: String, file: StaticString = #filePath, line: UInt = #line) {
+    private func wait(
+        for element: XCUIElement,
+        valueBeginsWith prefix: String,
+        timeout: TimeInterval = 5,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let predicate = NSPredicate(format: "value BEGINSWITH %@", prefix)
-        let result = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: element)], timeout: 5)
+        let result = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: element)], timeout: timeout)
         XCTAssertEqual(result, .completed, "Expected \(prefix)…, got \(element.value ?? "nothing")", file: file, line: line)
     }
 

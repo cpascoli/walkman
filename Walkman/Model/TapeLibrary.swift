@@ -65,6 +65,15 @@ final class TapeLibrary: ObservableObject {
         }
     }
 
+    /// Appends several recordings in order, skipping any already on the tape.
+    func add(_ videoIDs: [String], to tape: Tape) {
+        update(tape) { current in
+            for videoID in videoIDs where !current.contains(videoID) {
+                current.videoIDs.append(videoID)
+            }
+        }
+    }
+
     func remove(_ videoID: String, from tape: Tape) {
         update(tape) { $0.videoIDs.removeAll { $0 == videoID } }
     }

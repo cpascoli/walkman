@@ -27,6 +27,9 @@ final class NativePlayerModel: ObservableObject {
     @Published private(set) var selectedQualityID: Int?
     /// A quick low-quality stream is playing while the selected quality is built.
     @Published private(set) var isUpgradingQuality = false
+    /// Whether a tape that's still loading should start once it's ready —
+    /// not if it was paused while it was being cued.
+    private var startsWhenReady = true
     @Published private(set) var isPlaying = false
     /// Current playback position, republished for the tape counter.
     @Published private(set) var elapsed: TimeInterval = 0
@@ -156,6 +159,7 @@ final class NativePlayerModel: ObservableObject {
         resetPlaybackState()
         self.videoID = videoID
         state = .loading
+        startsWhenReady = true
 
         history.recordPlay(videoID: videoID)
 
@@ -189,8 +193,17 @@ final class NativePlayerModel: ObservableObject {
             let asset = (try? await StreamResolver.makeLocalAsset(at: url)) ?? AVURLAsset(url: url)
             guard let self, !Task.isCancelled, self.videoID == videoID else { return }
             self.state = .ready
-            self.install(AVPlayerItem(asset: asset), resumeAt: .zero, shouldResume: true)
+            self.install(AVPlayerItem(asset: asset), resumeAt: .zero, shouldResume: self.startsWhenReady)
         }
+    }
+
+    /// The best quality of a video that isn't playing, for downloading a whole tape.
+    func bestSource(for videoID: String) async throws -> StreamResolver.Source {
+        let video = YouTube(videoID: videoID, methods: extractionMethods)
+        guard let best = try await StreamResolver.qualities(for: video).qualities.first else {
+            throw StreamResolver.ResolverError.noPlayableStream
+        }
+        return best.source
     }
 
     /// The source the downloader should export, i.e. whatever quality is on screen.
@@ -262,7 +275,7 @@ final class NativePlayerModel: ObservableObject {
                let asset = try? await StreamResolver.makeAsset(for: quick),
                !Task.isCancelled, self.videoID == videoID {
                 isUpgradingQuality = true
-                install(AVPlayerItem(asset: asset), resumeAt: .zero, shouldResume: true)
+                install(AVPlayerItem(asset: asset), resumeAt: .zero, shouldResume: startsWhenReady)
             }
             guard !Task.isCancelled, self.videoID == videoID else { return }
             select(best, preservingPosition: false)
@@ -304,7 +317,7 @@ final class NativePlayerModel: ObservableObject {
         selectedQualityID = quality.id
 
         let resumeAt = preservingPosition ? player.currentTime() : .zero
-        let shouldResume = preservingPosition ? isPlaying : true
+        let shouldResume = preservingPosition ? isPlaying : startsWhenReady
 
         itemTask?.cancel()
         itemTask = Task { [weak self] in
@@ -378,17 +391,20 @@ final class NativePlayerModel: ObservableObject {
     // MARK: - Transport
 
     func play() {
+        startsWhenReady = true
         player.play()
         updateNowPlaying()
     }
 
     func pause() {
+        startsWhenReady = false
         player.pause()
         updateNowPlaying()
     }
 
     func stop() {
         cancelPendingAdvance()
+        startsWhenReady = false
         player.pause()
         player.seek(to: .zero)
         updateNowPlaying()

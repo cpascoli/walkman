@@ -75,7 +75,12 @@ struct RootView: View {
                     .id(resets[.search, default: 0])
                 }
                 page(.library) {
-                    LibraryView(store: history, library: library, downloads: downloads) { request in
+                    LibraryView(
+                        store: history,
+                        library: library,
+                        downloads: downloads,
+                        resolveDownload: nativeModel.bestSource
+                    ) { request in
                         deckCommand = .play(request)
                         // Over to the deck, to see it start.
                         tab = .player

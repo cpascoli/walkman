@@ -62,4 +62,60 @@ final class SimilarTapeUITests: XCTestCase {
         XCTAssertTrue(saved.waitForExistence(timeout: 10))
         XCTAssertTrue(saved.label.contains("\(count - 1)"), "Saved with \(count - 1) tracks: \(saved.label)")
     }
+
+    /// A tape of one song, extended with twenty more like it.
+    func testAddMoreLikeTheLastTrack() {
+        app.buttons["tab.Library"].tap()
+        app.buttons["newTapeButton"].tap()
+        let nameField = app.textFields["tapeNameField"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5))
+        nameField.clearAndType("Mix")
+        app.buttons["Create"].tap()
+
+        app.buttons["tab.Search"].tap()
+        let field = app.searchFields.firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("rick astley never gonna give you up\n")
+        let row = app.buttons["searchResultRow_dQw4w9WgXcQ"]
+        XCTAssertTrue(row.waitForExistence(timeout: 30))
+        row.tap()
+        let toggle = app.buttons["tapeToggle_Mix"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        toggle.tap()
+
+        app.buttons["tab.Library"].tap()
+        app.buttons["tapeRow_Mix"].tap()
+        let extend = app.buttons["extendTapeButton"]
+        XCTAssertTrue(extend.waitForExistence(timeout: 10))
+        extend.tap()
+
+        let progress = app.descendants(matching: .any)["extendTapeProgress"]
+        XCTAssertTrue(progress.waitForExistence(timeout: 10))
+        XCTAssertTrue(progress.waitForNonExistence(timeout: 120), "Extending should finish")
+        XCTAssertFalse(app.descendants(matching: .any)["extendTapeError"].exists)
+
+        let result = app.staticTexts["extendTapeResult"]
+        XCTAssertTrue(result.waitForExistence(timeout: 5))
+        XCTAssertTrue(result.label.hasPrefix("Added"), result.label)
+        let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot()); shot.name = "extended"; shot.lifetime = .keepAlways; add(shot)
+
+        // The original stays first, with the new tracks after it.
+        let tracks = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'trackRow_'"))
+        XCTAssertEqual(tracks.firstMatch.identifier, "trackRow_dQw4w9WgXcQ")
+        app.buttons["tab.Library"].tap()
+        let tapeRow = app.buttons["tapeRow_Mix"]
+        XCTAssertTrue(tapeRow.waitForExistence(timeout: 5))
+        XCTAssertFalse(tapeRow.label.contains("1 track"), "The tape should have grown: \(tapeRow.label)")
+    }
+}
+
+private extension XCUIElement {
+    func clearAndType(_ text: String) {
+        tap()
+        if let current = value as? String, !current.isEmpty {
+            typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
+        }
+        typeText(text)
+    }
 }

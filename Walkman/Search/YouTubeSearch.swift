@@ -68,6 +68,17 @@ struct YouTubeSearch {
         try Self.parse(await post("search", ["continuation": continuation]))
     }
 
+    /// A known video as search shows it — with its channel and length — when
+    /// only its ID and title are to hand: looked for by title, then by ID.
+    func video(id: String, title: String) async throws -> SearchResult? {
+        for query in title == id ? [id] : [title, id] {
+            if let match = try await search(query).results.first(where: { $0.id == id }) {
+                return match
+            }
+        }
+        return nil
+    }
+
     /// The song YouTube credits in the video's "Music" section, if it has one.
     func musicCredit(for videoID: String) async throws -> MusicCredit? {
         // Asked for in English: the section is found by its "Music" heading.

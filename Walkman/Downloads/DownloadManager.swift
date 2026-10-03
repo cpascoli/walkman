@@ -43,13 +43,20 @@ final class DownloadManager: ObservableObject {
         }
     }
 
+    /// Finds what to save for a video that isn't playing, for batch downloads.
+    typealias SourceResolver = @MainActor (_ videoID: String) async throws -> StreamResolver.Source
+
     /// Video IDs with a file on disk. Published so history rows update live.
     @Published private(set) var downloadedIDs: Set<String> = []
     @Published private(set) var statuses: [String: Status] = [:]
+    /// A batch download's videos still to go, the one in progress first.
+    @Published private(set) var batch: [String] = []
 
     private let directory: URL
     private var tasks: [String: Task<Void, Never>] = [:]
     private var sessions: [String: AVAssetExportSession] = [:]
+    private var batchTask: Task<Void, Never>?
+    private var batchResolver: SourceResolver?
     private let log = Logger(subsystem: "com.carlopascoli.walkman", category: "Downloads")
 
     init(directory: URL? = nil) {
@@ -99,6 +106,68 @@ final class DownloadManager: ObservableObject {
         statuses[videoID] = .preparing
         tasks[videoID] = Task { [weak self] in
             await self?.performExport(videoID: videoID, source: source)
+        }
+    }
+
+    /// Downloads each video not already on the device, one at a time, skipping
+    /// past any that fail. Starting it again picks up whatever's left; while
+    /// one is running, more videos join the end of it.
+    func downloadAll(_ videoIDs: [String], resolve: @escaping SourceResolver) {
+        var seen = Set(batch)
+        batch += videoIDs.filter { !downloadedIDs.contains($0) && seen.insert($0).inserted }
+        batchResolver = resolve
+        guard batchTask == nil, !batch.isEmpty else { return }
+
+        batchTask = Task { [weak self] in
+            await self?.runBatch()
+        }
+    }
+
+    /// Stops a batch download, including the video in progress.
+    func cancelBatch() {
+        batchTask?.cancel()
+        batchTask = nil
+        let current = batch.first
+        batch = []
+        if let current, tasks[current] != nil {
+            cancel(videoID: current)
+        }
+    }
+
+    private func runBatch() async {
+        // Keep going for a while if the app is left mid-batch.
+        let backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "Batch download")
+        defer {
+            if backgroundTask != .invalid { UIApplication.shared.endBackgroundTask(backgroundTask) }
+        }
+
+        while let videoID = batch.first, let resolve = batchResolver, !Task.isCancelled {
+            // Already saved, or already being saved from the deck.
+            if !downloadedIDs.contains(videoID), tasks[videoID] == nil {
+                statuses[videoID] = .preparing
+                do {
+                    let source = try await resolve(videoID)
+                    try Task.checkCancellation()
+                    if case .hls = source { throw DownloadError.liveStreamNotDownloadable }
+
+                    let task = Task<Void, Never> { [weak self] in
+                        await self?.performExport(videoID: videoID, source: source)
+                    }
+                    tasks[videoID] = task
+                    await task.value
+                } catch is CancellationError {
+                    statuses[videoID] = nil
+                } catch {
+                    log.error("Batch download couldn't start \(videoID, privacy: .public): \(error.localizedDescription, privacy: .public)")
+                    statuses[videoID] = .failed(error.localizedDescription)
+                }
+            }
+            guard !Task.isCancelled else { break }
+            if batch.first == videoID { batch.removeFirst() }
+        }
+
+        if !Task.isCancelled {
+            batchTask = nil
         }
     }
 

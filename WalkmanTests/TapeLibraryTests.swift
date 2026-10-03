@@ -30,6 +30,13 @@ final class TapeLibraryTests: XCTestCase {
         XCTAssertEqual(library.tape(withID: tape.id)?.videoIDs, ["aaa", "bbb"])
     }
 
+    func testAddingSeveralKeepsOrderAndSkipsWhatsThere() {
+        let tape = library.create(name: "Mix", videoIDs: ["a", "b"])
+        library.add(["c", "b", "d", "c"], to: tape)
+
+        XCTAssertEqual(library.tape(withID: tape.id)?.videoIDs, ["a", "b", "c", "d"])
+    }
+
     func testToggleAddsThenRemoves() {
         let tape = library.create(name: "Mix")
 

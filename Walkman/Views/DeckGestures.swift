@@ -25,7 +25,12 @@ struct DeckGestures: View {
     /// How long a press has to last before winding starts.
     private static let holdDelay: Duration = .milliseconds(300)
 
+    /// How long to wait for another tap before acting on the ones so far.
+    private static let multiTapWindow: Duration = .milliseconds(300)
+
     @GestureState private var pressed: Direction?
+    @State private var taps = 0
+    @State private var tapTask: Task<Void, Never>?
     @State private var winding: Direction?
     @State private var windTask: Task<Void, Never>?
     /// Bumped for a tick of haptic feedback: there's nothing to look at.
@@ -53,7 +58,11 @@ struct DeckGestures: View {
                 stopWinding()
             }
         }
-        .onDisappear(perform: stopWinding)
+        .onDisappear {
+            stopWinding()
+            tapTask?.cancel()
+            taps = 0
+        }
     }
 
     /// The cassette, as it sits in the bay, with the bay's margin around it.
@@ -68,13 +77,7 @@ struct DeckGestures: View {
     private var tapZone: some View {
         Color.clear
             .contentShape(Rectangle())
-            // Each waits to see whether the longer one is coming, so a single
-            // tap lands a moment after the finger lifts.
-            .gesture(
-                TapGesture(count: 3).onEnded { perform(onRestart) }
-                    .exclusively(before: TapGesture(count: 2).onEnded { perform(onNextTrack) })
-                    .exclusively(before: TapGesture().onEnded { perform(onTogglePlayback) })
-            )
+            .onTapGesture(perform: countTap)
             .accessibilityElement()
             .accessibilityIdentifier("deckGestures")
             .accessibilityLabel("Tape deck")
@@ -97,6 +100,31 @@ struct DeckGestures: View {
         let state = isPlaying ? "Playing" : "Paused"
         guard let position else { return state }
         return "\(state), \(position)"
+    }
+
+    /// Taps are counted by hand: SwiftUI's double- and triple-tap gestures,
+    /// chained, sometimes took a quick triple tap for a single one. So a single
+    /// tap lands a moment after the finger lifts, in case another follows.
+    private func countTap() {
+        taps += 1
+        tapTask?.cancel()
+        guard taps < 3 else { return actOnTaps() }
+
+        tapTask = Task {
+            try? await Task.sleep(for: Self.multiTapWindow)
+            guard !Task.isCancelled else { return }
+            actOnTaps()
+        }
+    }
+
+    private func actOnTaps() {
+        let count = taps
+        taps = 0
+        switch count {
+        case 1: perform(onTogglePlayback)
+        case 2: perform(onNextTrack)
+        default: perform(onRestart)
+        }
     }
 
     private func perform(_ action: () -> Void) {
