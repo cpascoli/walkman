@@ -9,12 +9,14 @@ struct SearchView: View {
     let onPreviewStart: () -> Void
     /// Owned by the tab bar, so the results survive going back to the top.
     @ObservedObject var model: SearchModel
+    /// Also the tab bar's, for going back to the top.
+    @Binding var path: NavigationPath
 
     @State private var pendingTapeResult: SearchResult?
     @State private var newTapeName = ""
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             content
                 .background(Theme.background)
                 .navigationTitle("Search YouTube")

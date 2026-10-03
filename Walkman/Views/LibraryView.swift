@@ -8,7 +8,16 @@ struct LibraryView: View {
     @ObservedObject var downloads: DownloadManager
     /// For downloading a whole tape, whose videos mostly aren't playing.
     let resolveDownload: DownloadManager.SourceResolver
+    /// Owned by the tab bar, which empties it to go back to the top.
+    @Binding var path: NavigationPath
     let onSelect: (PlaybackRequest) -> Void
+
+    /// Where the library's links lead.
+    enum Route: Hashable {
+        case tape(UUID)
+        case allRecordings
+        case onDevice
+    }
 
     @State private var isNamingTape = false
     @State private var newTapeName = ""
@@ -18,11 +27,12 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 tapesSection
                 catalogueSection
             }
+            .navigationDestination(for: Route.self, destination: destination)
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
             .background(Theme.background)
@@ -57,16 +67,7 @@ struct LibraryView: View {
                     .foregroundStyle(Theme.secondaryText)
             } else {
                 ForEach(library.tapes) { tape in
-                    NavigationLink {
-                        TapeDetailView(
-                            tape: tape,
-                            store: store,
-                            library: library,
-                            downloads: downloads,
-                            resolveDownload: resolveDownload,
-                            onSelect: select
-                        )
-                    } label: {
+                    NavigationLink(value: Route.tape(tape.id)) {
                         shelfRow(
                             title: tape.name,
                             detail: "\(tape.trackCount) track\(tape.trackCount == 1 ? "" : "s")",
@@ -85,16 +86,7 @@ struct LibraryView: View {
 
     private var catalogueSection: some View {
         Section {
-            NavigationLink {
-                RecordingsListView(
-                    title: "All Recordings",
-                    entries: store.entries,
-                    store: store,
-                    library: library,
-                    downloads: downloads,
-                    onSelect: select
-                )
-            } label: {
+            NavigationLink(value: Route.allRecordings) {
                 shelfRow(
                     title: "All Recordings",
                     detail: "\(store.entries.count)",
@@ -103,16 +95,7 @@ struct LibraryView: View {
             }
             .accessibilityIdentifier("allRecordingsRow")
 
-            NavigationLink {
-                RecordingsListView(
-                    title: "On Device",
-                    entries: downloadedEntries,
-                    store: store,
-                    library: library,
-                    downloads: downloads,
-                    onSelect: select
-                )
-            } label: {
+            NavigationLink(value: Route.onDevice) {
                 shelfRow(
                     title: "On Device",
                     detail: ByteCountFormatter.string(fromByteCount: downloads.totalBytesOnDisk, countStyle: .file),
@@ -124,6 +107,39 @@ struct LibraryView: View {
             Text("Catalogue").legendStyle()
         }
         .listRowBackground(Theme.surface)
+    }
+
+    @ViewBuilder
+    private func destination(_ route: Route) -> some View {
+        switch route {
+        case .tape(let id):
+            // Gone if it was deleted while open elsewhere.
+            if let tape = library.tape(withID: id) {
+                TapeDetailView(
+                    tape: tape,
+                    store: store,
+                    library: library,
+                    downloads: downloads,
+                    resolveDownload: resolveDownload,
+                    onSelect: select
+                )
+            }
+        case .allRecordings:
+            recordings(title: "All Recordings", entries: store.entries)
+        case .onDevice:
+            recordings(title: "On Device", entries: downloadedEntries)
+        }
+    }
+
+    private func recordings(title: String, entries: [HistoryEntry]) -> some View {
+        RecordingsListView(
+            title: title,
+            entries: entries,
+            store: store,
+            library: library,
+            downloads: downloads,
+            onSelect: select
+        )
     }
 
     private func shelfRow(title: String, detail: String, icon: String) -> some View {

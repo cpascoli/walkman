@@ -37,9 +37,10 @@ struct RootView: View {
     @ObservedObject var library: TapeLibrary
 
     @State private var tab: Tab = .player
-    /// Bumped when a tab is tapped while showing, to take it back to its first
-    /// screen: a new identity rebuilds the tab's navigation from the top.
-    @State private var resets: [Tab: Int] = [:]
+    /// Where the tabs with screens to go into have got to. Emptied when the
+    /// tab is tapped while showing, which slides back to its first screen.
+    @State private var searchPath = NavigationPath()
+    @State private var libraryPath = NavigationPath()
     @StateObject private var searchModel = SearchModel()
     @State private var deckCommand: DeckCommand?
     /// The player picked in Settings.
@@ -71,21 +72,20 @@ struct RootView: View {
                 page(.search) {
                     SearchView(store: history, library: library, onPreviewStart: {
                         deckCommand = .pause
-                    }, model: searchModel)
-                    .id(resets[.search, default: 0])
+                    }, model: searchModel, path: $searchPath)
                 }
                 page(.library) {
                     LibraryView(
                         store: history,
                         library: library,
                         downloads: downloads,
-                        resolveDownload: nativeModel.bestSource
+                        resolveDownload: nativeModel.bestSource,
+                        path: $libraryPath
                     ) { request in
                         deckCommand = .play(request)
                         // Over to the deck, to see it start.
                         tab = .player
                     }
-                    .id(resets[.library, default: 0])
                 }
                 page(.settings) {
                     SettingsView(model: nativeModel, downloads: downloads, engine: $engine)
@@ -96,9 +96,12 @@ struct RootView: View {
             if !isKeyboardVisible, !isImmersive {
                 DeckTabBar(selection: $tab) { reselected in
                     // As with the system tab bar: tapping the tab you're on
-                    // goes back to its first screen. The deck has no others.
-                    guard reselected != .player else { return }
-                    resets[reselected, default: 0] += 1
+                    // goes back to its first screen. The others have no more.
+                    switch reselected {
+                    case .search: searchPath = NavigationPath()
+                    case .library: libraryPath = NavigationPath()
+                    case .player, .settings: break
+                    }
                 }
             }
         }

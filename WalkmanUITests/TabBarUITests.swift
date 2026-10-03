@@ -41,6 +41,11 @@ final class TabBarUITests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 30))
         row.tap()
         XCTAssertTrue(app.descendants(matching: .any)["searchPreview"].waitForExistence(timeout: 10))
+        // A screen further in, too.
+        let similar = app.buttons["similarTapeButton"]
+        XCTAssertTrue(similar.waitForExistence(timeout: 10))
+        similar.tap()
+        XCTAssertTrue(app.navigationBars["New Tape"].waitForExistence(timeout: 5))
 
         app.buttons["tab.Search"].tap()
         XCTAssertTrue(row.waitForExistence(timeout: 5), "The results should still be there")
